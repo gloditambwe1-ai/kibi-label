@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kibi Label - Accueil</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page-transition-overlay" id="page-transition"></div>
+    <div class="page-overlay" id="page-overlay"></div>
+
+    <header class="top-navbar">
+        <div class="navbar-left">
+            <div class="menu-toggle" id="menu-open"><i class="fa-solid fa-bars"></i></div>
+            <div class="logo-container"><h1 class="logo">Kibi <span>LABEL</span></h1></div>
+        </div>
+        <div class="navbar-right">
+            <div class="theme-toggle" id="theme-toggle"><i class="fa-regular fa-moon"></i></div>
+        </div>
+    </header>
+
+    <nav class="sidebar-offcanvas" id="sidebar">
+        <div class="sidebar-offcanvas-header">
+            <h1 class="logo">Kibi <span>LABEL</span></h1>
+            <div class="menu-close" id="menu-close"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="services.html">Services & Tarifs</a></li>
+            <li><a href="realisation.html">Réalisation</a></li>
+            <li><a href="a-propos.html">À Propos</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <section class="hero-section">
+            <div class="hero-image-side">
+                <div class="image-wrapper"><img src="images/hero.jpg" alt="Cils"></div>
+            </div>
+            <div class="hero-text-side">
+                <div class="hero-content">
+                    <h3 class="hero-title">Extensions de cils<br>Regard intense & élégant</h3>
+                    <a href="services.html" class="cta-button">CHOISIR MA POSE</a>
+                    
+                    <div class="before-after-widget" style="margin-top:30px;">
+                        <p class="widget-title">AVANT / APRÈS</p>
+                        <div class="ba-slider-container">
+                            <img src="images/avant.jpg" class="img-background">
+                            <div class="img-foreground-wrapper" id="foreground-wrapper">
+                                <img src="images/apres.jpg" class="img-foreground">
+                            </div>
+                            <input type="range" min="0" max="100" value="50" class="slider-range" id="ba-slider">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

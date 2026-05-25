@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kibi Label - Réalisations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="page-transition-overlay" id="page-transition"></div>
+    <div class="page-overlay" id="page-overlay"></div>
+
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-close" id="lightbox-close"><i class="fa-solid fa-xmark"></i></div>
+        <img src="" alt="Image agrandie" id="lightbox-img">
+    </div>
+
+    <header class="top-navbar">
+        <div class="navbar-left">
+            <div class="menu-toggle" id="menu-open"><i class="fa-solid fa-bars"></i></div>
+            <div class="logo-container"><h1 class="logo">Kibi <span>LABEL</span></h1></div>
+        </div>
+        <div class="navbar-right">
+            <div class="theme-toggle" id="theme-toggle" title="Mode sombre">
+                <i class="fa-regular fa-moon"></i>
+            </div>
+        </div>
+    </header>
+
+    <nav class="sidebar-offcanvas" id="sidebar">
+        <div class="sidebar-offcanvas-header">
+            <h1 class="logo">Kibi <span>LABEL</span></h1>
+            <div class="menu-close" id="menu-close"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="services.html">Services & Tarifs</a></li>
+            <li><a href="realisation.html">Réalisation</a></li>
+            <li><a href="a-propos.html">À Propos</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <section class="page-section">
+            <div class="page-header">
+                <h2 class="page-title">Nos Réalisations</h2>
+                <p class="page-subtitle">Découvrez notre portfolio de poses sur mesure</p>
+            </div>
+
+            <div class="portfolio-category">
+                <h3>Pose Hybride / Mixte</h3>
+                <div class="gallery-grid">
+                    <div class="gallery-item"><img src="images/avant.jpg" alt="Pose 1"></div>
+                    <div class="gallery-item"><img src="images/apres.jpg" alt="Pose 2"></div>
+                    <div class="gallery-item"><img src="images/hero.jpg" alt="Pose 3"></div>
+                    <div class="gallery-item"><img src="images/apres.jpg" alt="Pose 4"></div>
+                </div>
+            </div>
+
+            <div class="portfolio-category">
+                <h3>Volume Russe</h3>
+                <div class="gallery-grid">
+                    <div class="gallery-item"><img src="images/hero.jpg" alt="Pose 5"></div>
+                    <div class="gallery-item"><img src="images/avant.jpg" alt="Pose 6"></div>
+                </div>
+            </div>
+
+        </section>
+
+        <footer class="bottom-footer">
+            <a href="tel:+14189001191" class="contact-item"><i class="fa-solid fa-phone"></i><span>418-900-1191</span></a>
+            <a href="https://www.instagram.com/kibi_label/" target="_blank" class="contact-item"><i class="fa-brands fa-instagram"></i><span>@Kibi_label</span></a>
+            <a href="https://www.tiktok.com/@kibilabel" target="_blank" class="contact-item"><i class="fa-brands fa-tiktok"></i><span>Kibi Label</span></a>
+            <a href="https://snapchat.com/t/vFmJueij" target="_blank" class="contact-item"><i class="fa-brands fa-snapchat"></i><span>Kibi.lashes</span></a>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

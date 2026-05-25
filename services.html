@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kibi Label - Services & Tarifs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+    <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
+</head>
+<body>
+
+    <div class="page-transition-overlay" id="page-transition"></div>
+    <div class="page-overlay" id="page-overlay"></div>
+
+    <header class="top-navbar">
+        <div class="navbar-left">
+            <div class="menu-toggle" id="menu-open"><i class="fa-solid fa-bars"></i></div>
+            <div class="logo-container"><h1 class="logo">Kibi <span>LABEL</span></h1></div>
+        </div>
+        <div class="navbar-right">
+            <div class="theme-toggle" id="theme-toggle"><i class="fa-regular fa-moon"></i></div>
+        </div>
+    </header>
+
+    <nav class="sidebar-offcanvas" id="sidebar">
+        <div class="sidebar-offcanvas-header">
+            <h1 class="logo">Kibi <span>LABEL</span></h1>
+            <div class="menu-close" id="menu-close"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="services.html">Services & Tarifs</a></li>
+            <li><a href="realisation.html">Réalisation</a></li>
+            <li><a href="a-propos.html">À Propos</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <section class="page-section">
+            <div class="page-header">
+                <h2 class="page-title">Nos tarifs</h2>
+                <p class="page-subtitle">Sélectionnez votre pose pour réserver</p>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card light-card">
+                    <h3 style="text-align:center; margin-bottom:20px;">Pose Classique</h3>
+                    <div class="price-list">
+                        <div class="price-row"><span>Pose complète</span><span class="dots"></span><span>70$</span></div>
+                        <div class="price-row"><span>Remplissage 2 sem.</span><span class="dots"></span><span>30$</span></div>
+                    </div>
+                    <button onclick="openCalendly('https://calendly.com/kibilashes/classique')" class="service-btn">Réserver</button>
+                </div>
+
+                <div class="service-card dark-card">
+                    <h3 style="text-align:center; margin-bottom:20px;">Pose Hybride</h3>
+                    <div class="price-list">
+                        <div class="price-row"><span>Pose complète</span><span class="dots"></span><span>90$</span></div>
+                        <div class="price-row"><span>Remplissage 2 sem.</span><span class="dots"></span><span>45$</span></div>
+                    </div>
+                    <button onclick="openCalendly('https://calendly.com/kibilashes/hybride')" class="service-btn">Réserver</button>
+                </div>
+
+                <div class="service-card light-card">
+                    <h3 style="text-align:center; margin-bottom:20px;">Pose Volume</h3>
+                    <div class="price-list">
+                        <div class="price-row"><span>Pose complète</span><span class="dots"></span><span>95$</span></div>
+                    </div>
+                    <button onclick="openCalendly('https://calendly.com/kibilashes/volume')" class="service-btn">Réserver</button>
+                </div>
+
+                <div class="service-card dark-card mega-volume">
+                    <h3 style="text-align:center; margin-bottom:20px;">Méga Volume</h3>
+                    <div class="price-list">
+                        <div class="price-row"><span>Pose complète</span><span class="dots"></span><span>115$</span></div>
+                    </div>
+                    <button onclick="openCalendly('https://calendly.com/kibilashes/mega')" class="service-btn">Réserver</button>
+                </div>
+            </div>
+        </section>
+
+        <footer class="bottom-footer">
+            <a href="tel:+14189001191" class="contact-item"><i class="fa-solid fa-phone"></i><span>418-900-1191</span></a>
+            <a href="https://instagram.com/kibi_label/" target="_blank" class="contact-item"><i class="fa-brands fa-instagram"></i><span>@Kibi_label</span></a>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

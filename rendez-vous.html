@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kibi Label - Rendez-vous</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="page-transition-overlay" id="page-transition"></div>
+    <div class="page-overlay" id="page-overlay"></div>
+
+    <header class="top-navbar">
+        <div class="navbar-left">
+            <div class="menu-toggle" id="menu-open"><i class="fa-solid fa-bars"></i></div>
+            <div class="logo-container"><h1 class="logo">Kibi <span>LABEL</span></h1></div>
+        </div>
+        <div class="navbar-right">
+            <div class="theme-toggle" id="theme-toggle" title="Mode sombre">
+                <i class="fa-regular fa-moon"></i>
+            </div>
+        </div>
+    </header>
+
+    <nav class="sidebar-offcanvas" id="sidebar">
+        <div class="sidebar-offcanvas-header">
+            <h1 class="logo">Kibi <span>LABEL</span></h1>
+            <div class="menu-close" id="menu-close"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="services.html">Services & Tarifs</a></li>
+            <li><a href="realisation.html">Réalisation</a></li>
+            <li><a href="a-propos.html">À Propos</a></li>
+            <li><a href="rendez-vous.html">Rendez-vous</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <section class="page-section">
+            <div class="page-header">
+                <h2 class="page-title">Prendre Rendez-vous</h2>
+                <p class="page-subtitle">Réservez votre moment beauté en ligne à Chicoutimi</p>
+            </div>
+
+            <div class="booking-widget-container">
+                <div class="custom-booking-card">
+                    <h3 class="booking-card-title">Réservez votre rendez-vous</h3>
+                    
+                    <div class="booking-calendar-header">
+                        <button id="prev-month" class="month-nav-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span id="current-month-display" class="month-display">Mai 2026</span>
+                        <button id="next-month" class="month-nav-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+
+                    <div class="booking-days-header">
+                        <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+                    </div>
+                    
+                    <div class="booking-days-grid" id="booking-days-grid">
+                        </div>
+
+                    <div class="booking-time-slots" id="booking-time-slots" style="display: none;">
+                        </div>
+
+                    <button class="booking-confirm-btn" id="booking-confirm-btn" disabled>Confirmer la date</button>
+                </div>
+            </div>
+        </section>
+
+        <footer class="bottom-footer">
+            <a href="tel:+14189001191" class="contact-item"><i class="fa-solid fa-phone"></i><span>418-900-1191</span></a>
+            <a href="https://www.instagram.com/kibi_label/" target="_blank" class="contact-item"><i class="fa-brands fa-instagram"></i><span>@Kibi_label</span></a>
+            <a href="https://www.tiktok.com/@kibilabel" target="_blank" class="contact-item"><i class="fa-brands fa-tiktok"></i><span>Kibi Label</span></a>
+            <a href="https://snapchat.com/t/vFmJueij" target="_blank" class="contact-item"><i class="fa-brands fa-snapchat"></i><span>Kibi.lashes</span></a>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
