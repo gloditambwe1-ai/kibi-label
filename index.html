@@ -3,8 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kibi Label - Accueil</title>
+    <title>Kibi Label - Institut de Beauté & Soins Esthétiques | Chicoutimi</title>
+    
+    <meta name="description" content="Sublimez votre beauté naturelle chez Kibi Label à Chicoutimi. Institut professionnel spécialisé en soins esthétiques haut de gamme et services de beauté sur mesure.">
+    <meta name="keywords" content="institut de beauté, soins esthétiques, esthéticienne, services de beauté, salon de beauté, chicoutimi, saguenay, kibi label">
+    <link rel="canonical" href="https://kibilabel.ca/">
+    
+    <meta property="og:title" content="Kibi Label - Institut de Beauté & Soins Esthétiques | Chicoutimi">
+    <meta property="og:description" content="Découvrez nos services de beauté sur mesure à Chicoutimi. Prenez du temps pour vous et réservez votre moment de détente dès maintenant.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kibilabel.ca/">
+    <meta property="og:locale" content="fr_CA">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -19,7 +31,7 @@
             <div class="logo-container"><h1 class="logo">Kibi <span>LABEL</span></h1></div>
         </div>
         <div class="navbar-right">
-            <div class="theme-toggle" id="theme-toggle"><i class="fa-regular fa-moon"></i></div>
+            <div class="theme-toggle" id="theme-toggle" title="Mode sombre"><i class="fa-regular fa-moon"></i></div>
         </div>
     </header>
 
@@ -40,21 +52,31 @@
     <main class="main-content">
         <section class="hero-section">
             <div class="hero-image-side">
-                <div class="image-wrapper"><img src="images/hero.jpg" alt="Cils"></div>
+                <div class="image-wrapper">
+                    <img src="" alt="Institut Kibi Label Chicoutimi" class="hero-main-img">
+                </div>
             </div>
             <div class="hero-text-side">
                 <div class="hero-content">
-                    <h3 class="hero-title">Extensions de cils<br>Regard intense & élégant</h3>
-                    <a href="services.html" class="cta-button">CHOISIR MA PRESTATION</a>
+                    <div class="hero-logo-icon">
+                        <h2 class="hero-subtitle-brand">KIBI LABEL</h2>
+                    </div>
+                    <h1 class="hero-title">Institut de beauté<br>& Soins sur mesure</h1>
+                    <a href="services.html" class="cta-button">RÉSERVER MON SOIN</a>
                     
                     <div class="before-after-widget" style="margin-top:30px;">
                         <p class="widget-title">AVANT / APRÈS</p>
                         <div class="ba-slider-container">
-                            <img src="images/avant.jpg" class="img-background">
+                            <img src="images/avant.jpg" class="img-background" alt="Soin Avant">
                             <div class="img-foreground-wrapper" id="foreground-wrapper">
-                                <img src="images/apres.jpg" class="img-foreground">
+                                <img src="images/apres.jpg" class="img-foreground" alt="Soin Après">
                             </div>
-                            <div class="slider-visual-line" id="slider-line"></div>
+                            <div class="slider-visual-line" id="slider-line">
+                                <div class="slider-visual-button">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </div>
+                            </div>
                             <input type="range" min="0" max="100" value="50" class="slider-range" id="ba-slider">
                         </div>
                     </div>

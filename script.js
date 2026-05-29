@@ -2,14 +2,24 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log("Kibi Label - Connecté à Sanity !");
 
-    // --- NAVIGATION ACTIVE ---
-    let currentPath = window.location.pathname.split('/').pop() || 'index.html';
-    if (currentPath === '') currentPath = 'index.html';
-    const currentPathClean = currentPath.replace('.html', '');
+    // ==========================================================
+    // --- NAVIGATION ACTIVE (Compatible Netlify & Local) ---
+    // ==========================================================
+    let pathname = window.location.pathname;
+    
+    if (pathname.endsWith('/')) {
+        pathname = pathname.slice(0, -1);
+    }
+    
+    let currentSegment = pathname.split('/').pop().replace('.html', '');
+    
+    if (!currentSegment) {
+        currentSegment = 'index';
+    }
 
     document.querySelectorAll('.nav-links a').forEach(link => {
-        const linkHrefClean = link.getAttribute('href').replace('.html', '');
-        if (linkHrefClean === currentPathClean) {
+        let linkHref = link.getAttribute('href').replace('.html', '');
+        if (linkHref === currentSegment) {
             link.classList.add('active');
         } else {
             link.classList.remove('active');
@@ -35,10 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- TRANSITIONS DE PAGES ---
+    // ==========================================================
+    // --- TRANSITIONS DE PAGES & SÉCURITÉ BOUTON RETOUR ---
+    // ==========================================================
     const overlay = document.getElementById('page-transition');
+    
     if (overlay) {
         setTimeout(() => overlay.classList.add('is-loaded'), 50);
+        
         document.querySelectorAll('a[href]:not([target="_blank"]):not([href^="tel:"]):not([href^="mailto:"]):not([href^="#"])').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -48,6 +62,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+
+    window.addEventListener('pageshow', (event) => {
+        const overlayReset = document.getElementById('page-transition');
+        if (overlayReset) {
+            overlayReset.classList.remove('is-leaving');
+            overlayReset.classList.add('is-loaded');
+        }
+    });
 
     // --- MENU SIDEBAR ---
     const menuOpen = document.getElementById('menu-open');
@@ -118,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchSanityData() {
         try {
-            // 1. PARAMÈTRES GLOBAUX (Contact & Réseaux)
+            // 1. PARAMÈTRES GLOBAUX
             const settingsQuery = encodeURIComponent('*[_type == "siteSettings"][0]');
             const settingsRes = await fetch(QUERY_URL + settingsQuery);
             const settingsData = await settingsRes.json();
@@ -172,12 +194,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // 3. PAGE SERVICES (CATÉGORIES DYNAMIQUES)
+            // 3. PAGE SERVICES
             const servicesContainer = document.getElementById('services-container');
             const pageHeader = document.getElementById('dynamic-page-header');
             
             if (servicesContainer && window.location.pathname.includes('services')) {
-                // Requête GROQ mise à jour avec les variables de styles dynamiques
                 const srvQuery = encodeURIComponent('*[_type == "serviceCategory"] | order(_createdAt asc) {title, colorStyle, customBgColor, customTextColor, subServices[]{name, price, calendlyLink}}');
                 const srvRes = await fetch(QUERY_URL + srvQuery);
                 const srvData = await srvRes.json();
@@ -200,13 +221,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             let themeClass = 'service-card';
                             let inlineStyle = '';
                             
-                            // Logique d'application de la couleur choisie dans Sanity
                             if (cat.colorStyle === 'peche') {
                                 themeClass += ' light-card';
                             } else if (cat.colorStyle === 'custom') {
                                 inlineStyle = `background-color: ${cat.customBgColor || 'var(--creme)'}; color: ${cat.customTextColor || 'var(--noir-profond)'}; border: 2px solid rgba(189,106,89,0.2);`;
                             } else {
-                                themeClass += ' dark-card'; // Option par défaut (terracotta)
+                                themeClass += ' dark-card'; 
                             }
 
                             const catCard = document.createElement('div');
@@ -235,32 +255,35 @@ document.addEventListener('DOMContentLoaded', () => {
                     const renderSubServices = (cat) => {
                         if(pageHeader) {
                             pageHeader.innerHTML = `
-                                <button id="btn-back-categories" style="background:none; border:none; color: inherit; font-family: 'Montserrat', sans-serif; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 15px; opacity: 0.7; transition: opacity 0.3s;">
+                                <button type="button" id="btn-back-categories" style="background:none; border:none; color: inherit; font-family: 'Montserrat', sans-serif; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 15px; opacity: 0.7; transition: opacity 0.3s;">
                                     <i class="fa-solid fa-arrow-left"></i> Retour
                                 </button>
                                 <h2 class="page-title">${cat.title}</h2>
                                 <p class="page-subtitle">Sélectionnez votre prestation pour réserver</p>
                             `;
                             
-                            document.getElementById('btn-back-categories').onclick = renderCategories;
+                            document.getElementById('btn-back-categories').addEventListener('click', (e) => {
+                                e.preventDefault();
+                                renderCategories();
+                            });
                         }
 
                         servicesContainer.innerHTML = '<div class="services-grid" id="sub-services-grid"></div>';
                         const grid = document.getElementById('sub-services-grid');
 
-                        if (cat.subServices && cat.subServices.length > 0) {
-                            cat.subServices.forEach((sub) => {
+                        const validSubs = cat.subServices ? cat.subServices.filter(sub => sub.name) : [];
+
+                        if (validSubs.length > 0) {
+                            validSubs.forEach((sub) => {
                                 let themeClass = 'service-card';
                                 let cardStyle = '';
                                 let btnStyle = '';
                                 
-                                // Les sous-services héritent de la configuration de couleur du parent
                                 if (cat.colorStyle === 'peche') {
                                     themeClass += ' light-card';
                                 } else if (cat.colorStyle === 'custom') {
                                     cardStyle = `background-color: ${cat.customBgColor || 'var(--creme)'}; color: ${cat.customTextColor || 'var(--noir-profond)'}; border: 2px solid rgba(189,106,89,0.2);`;
                                     
-                                    // Adapte le style des boutons pour les couleurs personnalisées afin de garder un bon contraste
                                     if (cat.customTextColor === '#ffffff') {
                                         btnStyle = `background: #ffffff; color: ${cat.customBgColor || 'var(--terracotta)'}; border: none;`;
                                     } else {
@@ -280,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <div class="price-row">
                                             <span>Prestation</span>
                                             <span class="dots"></span>
-                                            <span>${sub.price}</span>
+                                            <span>${sub.price || 'Sur devis'}</span>
                                         </div>
                                     </div>
                                     <button onclick="openCalendly('${sub.calendlyLink || '#'}')" class="service-btn" ${btnStyle ? `style="${btnStyle}"` : ''}>Réserver</button>
@@ -296,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // 4. PAGE RÉALISATIONS (PORTFOLIO)
+            // 4. PAGE RÉALISATIONS
             const portfolioContainer = document.querySelector('.page-section');
             if (portfolioContainer && window.location.pathname.includes('realisation')) {
                 const portQuery = encodeURIComponent('*[_type == "portfolioCategory"] | order(_createdAt asc) {title, "images": images[].asset->url}');
