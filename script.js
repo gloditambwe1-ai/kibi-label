@@ -3,9 +3,17 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("Kibi Label - Connecté à Sanity !");
 
     // --- NAVIGATION ACTIVE ---
-    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    let currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    if (currentPath === '') currentPath = 'index.html';
+    const currentPathClean = currentPath.replace('.html', '');
+
     document.querySelectorAll('.nav-links a').forEach(link => {
-        if (link.getAttribute('href') === currentPath) link.classList.add('active');
+        const linkHrefClean = link.getAttribute('href').replace('.html', '');
+        if (linkHrefClean === currentPathClean) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
     });
 
     // --- MODE SOMBRE ---
@@ -69,20 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- FONCTION TILT 3D SERVICES ---
-    function initTiltEffect() {
-        document.querySelectorAll('.service-card').forEach(card => {
-            card.onmousemove = (e) => {
-                const r = card.getBoundingClientRect();
-                const x = e.clientX - r.left - r.width/2;
-                const y = e.clientY - r.top - r.height/2;
-                card.style.transform = `perspective(1000px) rotateX(${y/-10}deg) rotateY(${x/10}deg) scale(1.02)`;
-            };
-            card.onmouseleave = () => card.style.transform = '';
-        });
-    }
-    initTiltEffect(); // Initialisation sur les cartes de base
-
     // --- FONCTION LIGHTBOX PORTFOLIO ---
     function initLightbox() {
         const galleryItems = document.querySelectorAll('.gallery-item img');
@@ -103,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
     }
-    initLightbox(); // Initialisation sur les photos de base
+    initLightbox();
 
     // --- LOGIQUE POP-UP CALENDLY ---
     window.openCalendly = (url) => {
@@ -150,6 +144,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         const span = el.querySelector('span');
                         if(span) span.textContent = s.email;
                     });
+                    
+                    const contactForm = document.getElementById('contact-form');
+                    const nextUrlInput = document.getElementById('form-next-url');
+                    if (contactForm) {
+                        contactForm.action = `https://formsubmit.co/${s.email}`;
+                        if (nextUrlInput) {
+                            nextUrlInput.value = window.location.href;
+                        }
+                    }
                 }
             }
 
@@ -169,35 +172,127 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // 3. PAGE SERVICES
-            const servicesGrid = document.querySelector('.services-grid');
-            if (servicesGrid && window.location.pathname.includes('services')) {
-                const srvQuery = encodeURIComponent('*[_type == "service"] | order(_createdAt asc)');
+            // 3. PAGE SERVICES (CATÉGORIES DYNAMIQUES)
+            const servicesContainer = document.getElementById('services-container');
+            const pageHeader = document.getElementById('dynamic-page-header');
+            
+            if (servicesContainer && window.location.pathname.includes('services')) {
+                // Requête GROQ mise à jour avec les variables de styles dynamiques
+                const srvQuery = encodeURIComponent('*[_type == "serviceCategory"] | order(_createdAt asc) {title, colorStyle, customBgColor, customTextColor, subServices[]{name, price, calendlyLink}}');
                 const srvRes = await fetch(QUERY_URL + srvQuery);
                 const srvData = await srvRes.json();
                 
                 if (srvData.result && srvData.result.length > 0) {
-                    servicesGrid.innerHTML = ''; // Efface les cartes d'origine
-                    srvData.result.forEach(srv => {
-                        let pricesHtml = '';
-                        if(srv.prices) {
-                            srv.prices.forEach(p => {
-                                pricesHtml += `<div class="price-row"><span>${p.label}</span><span class="dots"></span><span class="price-val">${p.price}</span></div>`;
+                    const categories = srvData.result;
+
+                    const renderCategories = () => {
+                        if(pageHeader) {
+                            pageHeader.innerHTML = `
+                                <h2 class="page-title">Nos tarifs</h2>
+                                <p class="page-subtitle">Sélectionnez une catégorie pour voir les prestations</p>
+                            `;
+                        }
+                        
+                        servicesContainer.innerHTML = '<div class="services-grid" id="main-categories-grid"></div>';
+                        const grid = document.getElementById('main-categories-grid');
+
+                        categories.forEach((cat) => {
+                            let themeClass = 'service-card';
+                            let inlineStyle = '';
+                            
+                            // Logique d'application de la couleur choisie dans Sanity
+                            if (cat.colorStyle === 'peche') {
+                                themeClass += ' light-card';
+                            } else if (cat.colorStyle === 'custom') {
+                                inlineStyle = `background-color: ${cat.customBgColor || 'var(--creme)'}; color: ${cat.customTextColor || 'var(--noir-profond)'}; border: 2px solid rgba(189,106,89,0.2);`;
+                            } else {
+                                themeClass += ' dark-card'; // Option par défaut (terracotta)
+                            }
+
+                            const catCard = document.createElement('div');
+                            catCard.className = themeClass;
+                            if (inlineStyle) catCard.setAttribute('style', inlineStyle);
+                            
+                            catCard.style.cursor = 'pointer';
+                            catCard.style.display = 'flex';
+                            catCard.style.flexDirection = 'column';
+                            catCard.style.justifyContent = 'center';
+                            catCard.style.alignItems = 'center';
+                            catCard.style.minHeight = '180px';
+                            
+                            catCard.innerHTML = `
+                                <h3 style="font-family: 'Playfair Display', serif; font-size: 26px; text-align: center; margin-bottom: 10px;">${cat.title}</h3>
+                                <div style="font-family: 'Montserrat', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; border-bottom: 1px solid currentColor; padding-bottom: 2px; opacity: 0.8;">
+                                    Voir les prestations
+                                </div>
+                            `;
+                            
+                            catCard.onclick = () => renderSubServices(cat);
+                            grid.appendChild(catCard);
+                        });
+                    };
+
+                    const renderSubServices = (cat) => {
+                        if(pageHeader) {
+                            pageHeader.innerHTML = `
+                                <button id="btn-back-categories" style="background:none; border:none; color: inherit; font-family: 'Montserrat', sans-serif; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 15px; opacity: 0.7; transition: opacity 0.3s;">
+                                    <i class="fa-solid fa-arrow-left"></i> Retour
+                                </button>
+                                <h2 class="page-title">${cat.title}</h2>
+                                <p class="page-subtitle">Sélectionnez votre prestation pour réserver</p>
+                            `;
+                            
+                            document.getElementById('btn-back-categories').onclick = renderCategories;
+                        }
+
+                        servicesContainer.innerHTML = '<div class="services-grid" id="sub-services-grid"></div>';
+                        const grid = document.getElementById('sub-services-grid');
+
+                        if (cat.subServices && cat.subServices.length > 0) {
+                            cat.subServices.forEach((sub) => {
+                                let themeClass = 'service-card';
+                                let cardStyle = '';
+                                let btnStyle = '';
+                                
+                                // Les sous-services héritent de la configuration de couleur du parent
+                                if (cat.colorStyle === 'peche') {
+                                    themeClass += ' light-card';
+                                } else if (cat.colorStyle === 'custom') {
+                                    cardStyle = `background-color: ${cat.customBgColor || 'var(--creme)'}; color: ${cat.customTextColor || 'var(--noir-profond)'}; border: 2px solid rgba(189,106,89,0.2);`;
+                                    
+                                    // Adapte le style des boutons pour les couleurs personnalisées afin de garder un bon contraste
+                                    if (cat.customTextColor === '#ffffff') {
+                                        btnStyle = `background: #ffffff; color: ${cat.customBgColor || 'var(--terracotta)'}; border: none;`;
+                                    } else {
+                                        btnStyle = `background: ${cat.customBgColor || 'var(--terracotta)'}; color: #ffffff; border: none;`;
+                                    }
+                                } else {
+                                    themeClass += ' dark-card';
+                                }
+
+                                const subCard = document.createElement('div');
+                                subCard.className = themeClass;
+                                if (cardStyle) subCard.setAttribute('style', cardStyle);
+                                
+                                subCard.innerHTML = `
+                                    <h3 style="text-align:center; margin-bottom:20px;">${sub.name}</h3>
+                                    <div class="price-list">
+                                        <div class="price-row">
+                                            <span>Prestation</span>
+                                            <span class="dots"></span>
+                                            <span>${sub.price}</span>
+                                        </div>
+                                    </div>
+                                    <button onclick="openCalendly('${sub.calendlyLink || '#'}')" class="service-btn" ${btnStyle ? `style="${btnStyle}"` : ''}>Réserver</button>
+                                `;
+                                grid.appendChild(subCard);
                             });
+                        } else {
+                            grid.innerHTML = `<p style="text-align: center; width: 100%; font-family: 'Montserrat', sans-serif;">Aucune prestation disponible pour le moment.</p>`;
                         }
-                        const card = document.createElement('div');
-                        card.className = `service-card ${srv.theme || 'light-card'}`;
-                        if (srv.title && srv.title.toLowerCase().includes('méga')) {
-                            card.classList.add('mega-volume');
-                        }
-                        card.innerHTML = `
-                            <h3 class="service-name-center">${srv.title}</h3>
-                            <div class="price-list">${pricesHtml}</div>
-                            <button onclick="openCalendly('${srv.calendlyLink || '#'}')" class="service-btn">Réserver</button>
-                        `;
-                        servicesGrid.appendChild(card);
-                    });
-                    initTiltEffect(); // Relance l'animation 3D sur les nouvelles cartes
+                    };
+
+                    renderCategories();
                 }
             }
 
@@ -209,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const portData = await portRes.json();
                 
                 if (portData.result && portData.result.length > 0) {
-                    document.querySelectorAll('.portfolio-category').forEach(el => el.remove()); // Efface l'ancien
+                    document.querySelectorAll('.portfolio-category').forEach(el => el.remove());
                     
                     portData.result.forEach(cat => {
                         const catDiv = document.createElement('div');
@@ -226,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         `;
                         portfolioContainer.appendChild(catDiv);
                     });
-                    initLightbox(); // Relance le clic d'agrandissement sur les nouvelles images
+                    initLightbox();
                 }
             }
 
@@ -243,14 +338,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(ab.title) document.querySelector('.about-text h3').textContent = ab.title;
                     
                     if(ab.paragraphs && ab.paragraphs.length > 0) {
-                        document.querySelectorAll('.about-text p').forEach(p => p.remove()); // Supprime les anciens textes
+                        document.querySelectorAll('.about-text p').forEach(p => p.remove());
                         const aboutTextDiv = document.querySelector('.about-text');
                         const cta = aboutTextDiv.querySelector('.cta-button'); 
                         
                         ab.paragraphs.forEach(pText => {
                             const p = document.createElement('p');
                             p.textContent = pText;
-                            aboutTextDiv.insertBefore(p, cta); // Insère le nouveau texte juste au-dessus du bouton
+                            aboutTextDiv.insertBefore(p, cta);
                         });
                     }
                 }

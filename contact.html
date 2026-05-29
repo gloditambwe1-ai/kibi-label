@@ -49,7 +49,15 @@
             </div>
 
             <div class="form-container">
-                <form action="https://formspree.io/f/ton-code-ici" method="POST">
+                <form id="contact-form" action="" method="POST">
+                    
+                    <input type="hidden" name="_subject" value="Nouveau message depuis le site Kibi Label !">
+                    <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_template" value="table">
+                    <input type="hidden" id="form-next-url" name="_next" value="">
+                    
+                    <input type="text" name="_honey" style="display:none">
+
                     <div class="form-group">
                         <label for="name">Nom Complet</label>
                         <input type="text" id="name" name="name" class="form-control" placeholder="Votre nom" required>
