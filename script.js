@@ -3,23 +3,34 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("Kibi Label - Connecté à Sanity !");
 
     // ==========================================================
-    // --- NAVIGATION ACTIVE (Compatible Netlify & Local) ---
+    // --- NAVIGATION ACTIVE (Garantie 100% Netlify & Local) ---
     // ==========================================================
-    let pathname = window.location.pathname;
     
-    if (pathname.endsWith('/')) {
-        pathname = pathname.slice(0, -1);
+    // 1. On récupère le chemin de la page actuelle et on retire le slash final
+    let currentPath = window.location.pathname.replace(/\/$/, '');
+    
+    // 2. Si on est sur la page d'accueil (chemin vide), on force le nom "index"
+    if (currentPath === '') {
+        currentPath = '/index';
     }
     
-    let currentSegment = pathname.split('/').pop().replace('.html', '');
-    
-    if (!currentSegment) {
-        currentSegment = 'index';
-    }
+    // 3. On nettoie l'extension .html si elle est présente (pour le local)
+    currentPath = currentPath.replace('.html', '');
 
+    // 4. On compare avec chaque lien du menu
     document.querySelectorAll('.nav-links a').forEach(link => {
-        let linkHref = link.getAttribute('href').replace('.html', '');
-        if (linkHref === currentSegment) {
+        
+        // On récupère le chemin absolu du bouton cliqué
+        let linkPath = new URL(link.href).pathname.replace(/\/$/, '');
+        
+        if (linkPath === '') {
+            linkPath = '/index';
+        }
+        
+        linkPath = linkPath.replace('.html', '');
+
+        // 5. Comparaison stricte
+        if (currentPath === linkPath) {
             link.classList.add('active');
         } else {
             link.classList.remove('active');
@@ -71,6 +82,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // ==========================================================
+    // --- LAZY LOADING GLOBAL (Intersection Observer) ---
+    // ==========================================================
+    function initLazyScrollReveal() {
+        // Nettoyage de la référence à l'ancien conteneur Instagram
+        const elementsToReveal = document.querySelectorAll('.reveal-on-scroll, .service-card, .portfolio-category');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            root: null,
+            rootMargin: '0px 0px -50px 0px',
+            threshold: 0.1
+        });
+
+        elementsToReveal.forEach(el => {
+            el.classList.add('reveal-on-scroll');
+            observer.observe(el);
+        });
+    }
+
     // --- MENU SIDEBAR ---
     const menuOpen = document.getElementById('menu-open');
     const menuClose = document.getElementById('menu-close');
@@ -119,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
     }
-    initLightbox();
 
     // --- LOGIQUE POP-UP CALENDLY ---
     window.openCalendly = (url) => {
@@ -179,7 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 2. PAGE ACCUEIL
-            if (document.querySelector('.hero-section')) {
+            const heroSection = document.querySelector('.hero-section');
+            if (heroSection) {
                 const homeQuery = encodeURIComponent('*[_type == "homePage"][0]{heroTitle, ctaText, "heroImg": heroImage.asset->url, "avantImg": avantImage.asset->url, "apresImg": apresImage.asset->url}');
                 const homeRes = await fetch(QUERY_URL + homeQuery);
                 const homeData = await homeRes.json();
@@ -188,9 +225,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     const h = homeData.result;
                     if(h.heroTitle) document.querySelector('.hero-title').innerHTML = h.heroTitle.replace(/\\n/g, '<br>');
                     if(h.ctaText) document.querySelector('.hero-section .cta-button').textContent = h.ctaText;
-                    if(h.heroImg) document.querySelector('.hero-image-side img').src = h.heroImg;
-                    if(h.avantImg) document.querySelector('.img-background').src = h.avantImg;
-                    if(h.apresImg) document.querySelector('.img-foreground').src = h.apresImg;
+                    
+                    if(h.heroImg) {
+                        const img = document.querySelector('.hero-image-side img');
+                        img.loading = "lazy";
+                        img.src = h.heroImg;
+                    }
+                    if(h.avantImg) {
+                        const img = document.querySelector('.img-background');
+                        img.loading = "lazy";
+                        img.src = h.avantImg;
+                    }
+                    if(h.apresImg) {
+                        const img = document.querySelector('.img-foreground');
+                        img.loading = "lazy";
+                        img.src = h.apresImg;
+                    }
                 }
             }
 
@@ -250,6 +300,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             catCard.onclick = () => renderSubServices(cat);
                             grid.appendChild(catCard);
                         });
+                        
+                        initLazyScrollReveal();
                     };
 
                     const renderSubServices = (cat) => {
@@ -310,6 +362,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 `;
                                 grid.appendChild(subCard);
                             });
+                            
+                            initLazyScrollReveal();
                         } else {
                             grid.innerHTML = `<p style="text-align: center; width: 100%; font-family: 'Montserrat', sans-serif;">Aucune prestation disponible pour le moment.</p>`;
                         }
@@ -335,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         let imgsHtml = '';
                         if(cat.images) {
                             cat.images.forEach(imgUrl => {
-                                imgsHtml += `<div class="gallery-item"><img src="${imgUrl}" alt="Réalisation ${cat.title}"></div>`;
+                                imgsHtml += `<div class="gallery-item"><img src="${imgUrl}" alt="Réalisation ${cat.title}" loading="lazy"></div>`;
                             });
                         }
                         catDiv.innerHTML = `
@@ -345,6 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         portfolioContainer.appendChild(catDiv);
                     });
                     initLightbox();
+                    initLazyScrollReveal();
                 }
             }
 
@@ -357,7 +412,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (aboutData.result) {
                     const ab = aboutData.result;
-                    if(ab.imgUrl) document.querySelector('.about-image-wrapper img').src = ab.imgUrl;
+                    if(ab.imgUrl) {
+                        const img = document.querySelector('.about-image-wrapper img');
+                        img.loading = "lazy";
+                        img.src = ab.imgUrl;
+                    }
                     if(ab.title) document.querySelector('.about-text h3').textContent = ab.title;
                     
                     if(ab.paragraphs && ab.paragraphs.length > 0) {
@@ -371,8 +430,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             aboutTextDiv.insertBefore(p, cta);
                         });
                     }
+                    initLazyScrollReveal();
                 }
             }
+
+            initLazyScrollReveal();
 
         } catch(error) {
             console.error("Erreur de récupération depuis Sanity :", error);
