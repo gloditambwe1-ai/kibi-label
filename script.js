@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // 3. PAGE SERVICES
+            // 3. PAGE SERVICES (AJOUT DE L'API HISTORY)
             const servicesContainer = document.getElementById('services-container');
             const pageHeader = document.getElementById('dynamic-page-header');
             
@@ -318,6 +318,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             `;
                         }
                         
+                        // Nettoyage de l'URL si on remonte dans l'arborescence manuellement
+                        if (window.location.hash === '#prestation') {
+                            history.replaceState(null, '', window.location.pathname);
+                        }
+
                         servicesContainer.innerHTML = '<div class="services-grid" id="main-categories-grid"></div>';
                         const grid = document.getElementById('main-categories-grid');
 
@@ -351,7 +356,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </div>
                             `;
                             
-                            catCard.onclick = () => renderSubServices(cat);
+                            catCard.onclick = () => {
+                                // Enregistrement de la navigation dans l'historique du navigateur
+                                history.pushState({ view: 'subServices' }, '', window.location.pathname + '#prestation');
+                                renderSubServices(cat);
+                            };
                             grid.appendChild(catCard);
                         });
                         
@@ -361,8 +370,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const renderSubServices = (cat) => {
                         if(pageHeader) {
                             pageHeader.innerHTML = `
-                                <button type="button" id="btn-back-categories" style="background:none; border:none; color: inherit; font-family: 'Montserrat', sans-serif; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 15px; opacity: 0.7; transition: opacity 0.3s;">
-                                    <i class="fa-solid fa-arrow-left"></i> Retour
+                                <button type="button" id="btn-back-categories" class="back-btn">
+                                    <i class="fa-solid fa-arrow-left"></i> Retour aux catégories
                                 </button>
                                 <h2 class="page-title">${cat.title}</h2>
                                 <p class="page-subtitle">Sélectionnez votre prestation pour réserver</p>
@@ -370,7 +379,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             
                             document.getElementById('btn-back-categories').addEventListener('click', (e) => {
                                 e.preventDefault();
-                                renderCategories();
+                                // Simulation d'un clic sur la flèche retour du navigateur
+                                if (window.location.hash === '#prestation') {
+                                    history.back();
+                                } else {
+                                    renderCategories();
+                                }
                             });
                         }
 
@@ -416,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                             subSubHtml += `
                                                 <div style="${borderStyle} display: flex; flex-direction: column; gap: 10px;">
                                                     <div class="price-row">
-                                                        <span style="font-weight: 500;">${subSub.name}</span>
+                                                        <span class="service-name" style="font-weight: 500;">${subSub.name}</span>
                                                         <span class="dots"></span>
                                                         <div class="price-action">
                                                             <span class="price-amount">${subSub.price || 'Sur devis'}</span>
@@ -435,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <h3 style="text-align:center; margin-bottom:20px; font-family: 'Playfair Display', serif;">${sub.name}</h3>
                                         <div class="price-list">
                                             <div class="price-row">
-                                                <span>Prestation</span>
+                                                <span class="service-name">Prestation</span>
                                                 <span class="dots"></span>
                                                 <div class="price-action">
                                                     <span class="price-amount">${sub.price || 'Sur devis'}</span>
@@ -454,6 +468,19 @@ document.addEventListener('DOMContentLoaded', () => {
                             grid.innerHTML = `<p style="text-align: center; width: 100%; font-family: 'Montserrat', sans-serif;">Aucune prestation disponible pour le moment.</p>`;
                         }
                     };
+
+                    // Écouteur pour capturer le bouton "Précédent" du navigateur
+                    window.addEventListener('popstate', (event) => {
+                        // Si le hash #prestation a disparu de l'URL, on recharge la liste des catégories
+                        if (window.location.hash !== '#prestation') {
+                            renderCategories();
+                        }
+                    });
+
+                    // Sécurité : Nettoyage initial de l'URL en cas de rafraîchissement manuel
+                    if (window.location.hash === '#prestation') {
+                        history.replaceState(null, '', window.location.pathname);
+                    }
 
                     renderCategories();
                 }
