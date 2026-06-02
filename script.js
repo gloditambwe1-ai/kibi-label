@@ -86,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LAZY LOADING GLOBAL (Intersection Observer) ---
     // ==========================================================
     function initLazyScrollReveal() {
-        // Nettoyage de la référence à l'ancien conteneur Instagram
         const elementsToReveal = document.querySelectorAll('.reveal-on-scroll, .service-card, .portfolio-category');
         
         const observer = new IntersectionObserver((entries) => {
@@ -168,6 +167,54 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ==========================================================
+    // --- GESTION MODAL DE POLITIQUE DE RENDEZ-VOUS ---
+    // ==========================================================
+    let targetCalendlyUrl = '#';
+
+    window.triggerPolicyModal = (url) => {
+        const modal = document.getElementById('policy-modal');
+        const checkbox = document.getElementById('policy-checkbox');
+        const nextBtn = document.getElementById('policy-next-btn');
+        
+        if (modal) {
+            targetCalendlyUrl = url;
+            if (checkbox) checkbox.checked = false;
+            if (nextBtn) nextBtn.disabled = true;
+            
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+        }
+    };
+
+    const policyModal = document.getElementById('policy-modal');
+    const policyClose = document.getElementById('policy-modal-close');
+    const policyCheckbox = document.getElementById('policy-checkbox');
+    const policyNextBtn = document.getElementById('policy-next-btn');
+
+    if (policyClose && policyModal) {
+        policyClose.onclick = () => {
+            policyModal.classList.remove('active');
+            setTimeout(() => { policyModal.style.display = 'none'; }, 400);
+        };
+    }
+
+    if (policyCheckbox && policyNextBtn) {
+        policyCheckbox.addEventListener('change', (e) => {
+            policyNextBtn.disabled = !e.target.checked;
+        });
+    }
+
+    if (policyNextBtn) {
+        policyNextBtn.onclick = () => {
+            if (policyModal) {
+                policyModal.classList.remove('active');
+                setTimeout(() => { policyModal.style.display = 'none'; }, 400);
+            }
+            window.openCalendly(targetCalendlyUrl);
+        };
+    }
+
+    // ==========================================================
     // --- CONNEXION SANITY (BACK-OFFICE) ---
     // ==========================================================
     const PROJECT_ID = 'mq2u95ip';
@@ -177,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchSanityData() {
         try {
             // 1. PARAMÈTRES GLOBAUX
-            const settingsQuery = encodeURIComponent('*[_type == "siteSettings"][0]');
+            const settingsQuery = encodeURIComponent('*[_type == "siteSettings"][0]{phone, email, instagram, snapchat, tiktok, "policyImg": appointmentPolicy.asset->url}');
             const settingsRes = await fetch(QUERY_URL + settingsQuery);
             const settingsData = await settingsRes.json();
             
@@ -185,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const s = settingsData.result;
                 if(s.phone) {
                     document.querySelectorAll('.contact-item[href^="tel:"]').forEach(el => {
-                        el.href = `tel:${s.phone.replace(/\\s/g, '')}`;
+                        el.href = `tel:${s.phone.replace(/\s/g, '')}`;
                         const span = el.querySelector('span');
                         if(span) span.textContent = s.phone;
                     });
@@ -195,6 +242,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if(s.snapchat) {
                     document.querySelectorAll('.contact-item[href*="snapchat"]').forEach(el => el.href = s.snapchat);
+                }
+                if(s.tiktok) {
+                    document.querySelectorAll('.contact-item[href*="tiktok"]').forEach(el => el.href = s.tiktok);
+                }
+                if(s.policyImg) {
+                    const modalImg = document.getElementById('policy-modal-img');
+                    if (modalImg) modalImg.src = s.policyImg;
                 }
                 if(s.email) {
                     document.querySelectorAll('.contact-item[href^="mailto:"]').forEach(el => {
@@ -249,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pageHeader = document.getElementById('dynamic-page-header');
             
             if (servicesContainer && window.location.pathname.includes('services')) {
-                const srvQuery = encodeURIComponent('*[_type == "serviceCategory"] | order(_createdAt asc) {title, colorStyle, customBgColor, customTextColor, subServices[]{name, price, calendlyLink}}');
+                const srvQuery = encodeURIComponent('*[_type == "serviceCategory"] | order(_createdAt asc) {title, colorStyle, customBgColor, customTextColor, subServices[]{name, price, calendlyLink, subSubServices[]{name, price, calendlyLink}}}');
                 const srvRes = await fetch(QUERY_URL + srvQuery);
                 const srvData = await srvRes.json();
                 
@@ -320,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             });
                         }
 
-                        servicesContainer.innerHTML = '<div class="services-grid" id="sub-services-grid"></div>';
+                        servicesContainer.innerHTML = '<div class="sub-services-grid" id="sub-services-grid"></div>';
                         const grid = document.getElementById('sub-services-grid');
 
                         const validSubs = cat.subServices ? cat.subServices.filter(sub => sub.name) : [];
@@ -349,17 +403,49 @@ document.addEventListener('DOMContentLoaded', () => {
                                 subCard.className = themeClass;
                                 if (cardStyle) subCard.setAttribute('style', cardStyle);
                                 
-                                subCard.innerHTML = `
-                                    <h3 style="text-align:center; margin-bottom:20px;">${sub.name}</h3>
-                                    <div class="price-list">
-                                        <div class="price-row">
-                                            <span>Prestation</span>
-                                            <span class="dots"></span>
-                                            <span>${sub.price || 'Sur devis'}</span>
+                                if (sub.subSubServices && sub.subSubServices.length > 0) {
+                                    let subSubHtml = `<h3 style="text-align:center; margin-bottom:20px; font-family: 'Playfair Display', serif;">${sub.name}</h3>`;
+                                    
+                                    subSubHtml += `<div class="sub-sub-list-container">`;
+                                    
+                                    sub.subSubServices.forEach((subSub, index, array) => {
+                                        if (subSub.name) {
+                                            const isLast = index === array.length - 1;
+                                            const borderStyle = isLast ? '' : 'border-bottom: 1px solid rgba(189,106,89,0.15); padding-bottom: 15px;';
+                                            
+                                            subSubHtml += `
+                                                <div style="${borderStyle} display: flex; flex-direction: column; gap: 10px;">
+                                                    <div class="price-row">
+                                                        <span style="font-weight: 500;">${subSub.name}</span>
+                                                        <span class="dots"></span>
+                                                        <div class="price-action">
+                                                            <span class="price-amount">${subSub.price || 'Sur devis'}</span>
+                                                            <button onclick="triggerPolicyModal('${subSub.calendlyLink || '#'}')" class="service-btn service-btn-small" ${btnStyle ? `style="${btnStyle}"` : ''}>Réserver</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `;
+                                        }
+                                    });
+                                    
+                                    subSubHtml += `</div>`;
+                                    subCard.innerHTML = subSubHtml;
+                                } else {
+                                    subCard.innerHTML = `
+                                        <h3 style="text-align:center; margin-bottom:20px; font-family: 'Playfair Display', serif;">${sub.name}</h3>
+                                        <div class="price-list">
+                                            <div class="price-row">
+                                                <span>Prestation</span>
+                                                <span class="dots"></span>
+                                                <div class="price-action">
+                                                    <span class="price-amount">${sub.price || 'Sur devis'}</span>
+                                                    <button onclick="triggerPolicyModal('${sub.calendlyLink || '#'}')" class="service-btn service-btn-small" ${btnStyle ? `style="${btnStyle}"` : ''}>Réserver</button>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <button onclick="openCalendly('${sub.calendlyLink || '#'}')" class="service-btn" ${btnStyle ? `style="${btnStyle}"` : ''}>Réserver</button>
-                                `;
+                                    `;
+                                }
+                                
                                 grid.appendChild(subCard);
                             });
                             

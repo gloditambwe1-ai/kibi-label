@@ -141,10 +141,30 @@ body {
 .hero-logo-icon h2 { font-family: var(--font-titre); font-size: 32px; font-weight: 400; margin-top: 5px; color: white; }
 .hero-title { font-family: var(--font-texte); font-weight: 300; font-size: 24px; line-height: 1.4; margin-bottom: 40px; }
 
-.cta-button, .service-btn { display: inline-block; text-align: center; padding: 15px 30px; background: linear-gradient(135deg, var(--terracotta-fonce), var(--terracotta)); color: white; text-decoration: none; font-weight: 600; font-size: 14px; letter-spacing: 1px; border-radius: 6px; border: none; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); position: relative; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+/* --- BOUTONS --- */
+.cta-button, .service-btn { display: inline-block; text-align: center; padding: 15px 30px; background: linear-gradient(135deg, var(--terracotta-fonce), var(--terracotta)); color: white; text-decoration: none; font-weight: 600; font-size: 14px; letter-spacing: 1px; border-radius: 6px; border: none; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); position: relative; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease, opacity 0.3s ease; }
 .cta-button::after, .service-btn::after { content: ''; position: absolute; top: 0; left: -150%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent); transform: skewX(-25deg); transition: left 0.6s ease; }
 .cta-button:hover, .service-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
 .cta-button:hover::after, .service-btn:hover::after { left: 150%; }
+
+/* Bouton de réservation réduit pour la liste alignée */
+.service-btn-small { padding: 8px 16px; font-size: 12px; border-radius: 6px; white-space: nowrap; }
+
+/* MODIFICATION : Styles visuels pour les boutons désactivés (ex: Modal Politique) */
+.cta-button:disabled, .service-btn:disabled, #policy-next-btn:disabled {
+    opacity: 0.5;
+    filter: grayscale(80%);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+.cta-button:disabled:hover, .service-btn:disabled:hover, #policy-next-btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+.cta-button:disabled::after, .service-btn:disabled::after, #policy-next-btn:disabled::after {
+    display: none;
+}
 
 /* --- WIDGET AVANT / APRÈS --- */
 .before-after-widget { background-color: var(--bg-carte); padding: 15px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 280px; transition: background-color 0.4s ease; }
@@ -170,14 +190,30 @@ body {
 .page-title { font-family: var(--font-titre); font-size: 42px; color: var(--terracotta); margin-bottom: 10px; }
 .page-subtitle { font-size: 16px; font-weight: 300; color: var(--noir-profond); opacity: 0.8; }
 
+/* Grille principale (Catégories) */
 .services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; }
+
+/* Grille adaptative pour les Sous-services */
+.sub-services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; width: 100%; }
+
 .service-card { border-radius: 16px; padding: 35px; display: flex; flex-direction: column; transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.4s ease; }
 .service-card:hover { box-shadow: 0 20px 40px var(--ombre-douce); transform: translateY(-8px); }
 .light-card { background-color: var(--peche-clair); color: var(--noir-profond); border: 2px solid var(--border-input); }
 .dark-card { background-color: var(--terracotta); color: white; border: 2px solid rgba(255,255,255,0.2); }
 .price-list { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; flex: 1; }
-.price-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; font-weight: 300; }
+
+/* Alignement vertical centré pour gérer les boutons */
+.price-row { display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 300; }
 .dots { flex-grow: 1; border-bottom: 2px dotted currentColor; margin: 0 12px; opacity: 0.4; }
+
+/* Groupe Prix + Bouton */
+.price-action { display: flex; align-items: center; gap: 12px; }
+.price-amount { font-weight: 600; white-space: nowrap; }
+
+/* Conteneur visuel pour la liste des sous-sous-services */
+.sub-sub-list-container { background-color: rgba(0, 0, 0, 0.04); border-radius: 12px; padding: 20px; margin-top: 15px; display: flex; flex-direction: column; gap: 15px; width: 100%; }
+.dark-card .sub-sub-list-container { background-color: rgba(255, 255, 255, 0.08); }
+
 .light-card .service-btn { background: var(--terracotta); color: white; }
 .dark-card .service-btn { background: transparent; border: 1px solid white; color: white; }
 .dark-card .service-btn:hover { background: white; color: var(--terracotta); }
@@ -197,7 +233,7 @@ body {
 
 .about-container { display: flex; gap: 50px; align-items: center; }
 .about-image-wrapper { width: 45%; }
-.about-image-wrapper img { width: 100%; border-radius: 16px; border: 1px solid var(--terracotta); box-shadow: 0 15px 35px var(--ombre-douce); }
+.about-image-wrapper img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; max-height: 600px; border-radius: 16px; border: 1px solid var(--terracotta); box-shadow: 0 15px 35px var(--ombre-douce); }
 .about-text { width: 55%; text-align: left; }
 .about-text h3 { font-family: var(--font-titre); font-size: 28px; color: var(--terracotta); margin-bottom: 20px; }
 .about-text p { font-size: 15px; line-height: 1.8; color: var(--noir-profond); margin-bottom: 15px; }

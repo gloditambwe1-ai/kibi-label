@@ -34,6 +34,21 @@
     <div class="page-transition-overlay" id="page-transition"></div>
     <div class="page-overlay" id="page-overlay"></div>
 
+    <div class="lightbox" id="policy-modal" style="display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px;">
+        <div class="form-container" style="max-width: 500px; width: 100%; text-align: center; position: relative; display: flex; flex-direction: column; gap: 20px; background: var(--bg-carte);">
+            <div id="policy-modal-close" style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--terracotta);"><i class="fa-solid fa-xmark"></i></div>
+            <h3 style="font-family: var(--font-titre); font-size: 24px; color: var(--terracotta); margin-top: 10px;">Politique de rendez-vous</h3>
+            <div style="max-height: 50vh; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border-input); background: var(--bg-input);">
+                <img id="policy-modal-img" src="" alt="Politique de rendez-vous" style="width: 100%; height: auto; object-fit: contain; display: block; border-radius: 8px;">
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-family: var(--font-texte); font-size: 14px;">
+                <input type="checkbox" id="policy-checkbox" style="cursor: pointer; transform: scale(1.2);">
+                <label for="policy-checkbox" style="cursor: pointer; font-weight: 600; color: var(--noir-profond);">J'ai lu et j'accepte</label>
+            </div>
+            <button id="policy-next-btn" class="cta-button" style="width: 100%;" disabled>Suivant</button>
+        </div>
+    </div>
+
     <header class="top-navbar">
         <div class="navbar-left">
             <div class="menu-toggle" id="menu-open"><i class="fa-solid fa-bars"></i></div>
@@ -61,7 +76,7 @@
     <main class="main-content">
         <section class="page-section">
             <div class="page-header" id="dynamic-page-header">
-                <h2 class="page-title">Nos tarifs</h2>
+                <h2 class="page-title">Nos services</h2>
                 <p class="page-subtitle">Sélectionnez une catégorie pour voir les prestations</p>
             </div>
 
