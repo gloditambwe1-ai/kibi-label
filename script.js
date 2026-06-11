@@ -6,34 +6,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- NAVIGATION ACTIVE (Garantie 100% Netlify & Local) ---
     // ==========================================================
     
-    // 1. On récupère le chemin de la page actuelle et on retire le slash final
-    let currentPath = window.location.pathname.replace(/\/$/, '');
+    // On extrait uniquement le dernier mot de l'URL (le nom du fichier)
+    let currentPage = window.location.pathname.split('/').pop();
     
-    // 2. Si on est sur la page d'accueil (chemin vide), on force le nom "index"
-    if (currentPath === '') {
-        currentPath = '/index';
+    // Si on est à la racine (ex: localhost:3000/ ou kibilabel.ca/), currentPage est vide
+    if (currentPage === '' || currentPage === '/') {
+        currentPage = 'index';
     }
     
-    // 3. On nettoie l'extension .html si elle est présente (pour le local)
-    currentPath = currentPath.replace('.html', '');
+    // On nettoie l'extension pour pouvoir comparer proprement
+    currentPage = currentPage.replace('.html', '');
 
-    // 4. On compare avec chaque lien du menu
     document.querySelectorAll('.nav-links a').forEach(link => {
+        link.classList.remove('active');
+        let linkHref = link.getAttribute('href');
         
-        // On récupère le chemin absolu du bouton cliqué
-        let linkPath = new URL(link.href).pathname.replace(/\/$/, '');
-        
-        if (linkPath === '') {
-            linkPath = '/index';
-        }
-        
-        linkPath = linkPath.replace('.html', '');
+        if (linkHref) {
+            let cleanLink = linkHref.replace('.html', '');
+            if (cleanLink === '' || cleanLink === '/') cleanLink = 'index';
 
-        // 5. Comparaison stricte
-        if (currentPath === linkPath) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
+            // Si le lien correspond à la page actuelle, on l'active
+            if (currentPage === cleanLink) {
+                link.classList.add('active');
+            }
         }
     });
 
@@ -55,32 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
             themeIcon.classList.replace(isDark ? 'fa-moon' : 'fa-sun', isDark ? 'fa-sun' : 'fa-moon');
         });
     }
-
-    // ==========================================================
-    // --- TRANSITIONS DE PAGES & SÉCURITÉ BOUTON RETOUR ---
-    // ==========================================================
-    const overlay = document.getElementById('page-transition');
-    
-    if (overlay) {
-        setTimeout(() => overlay.classList.add('is-loaded'), 50);
-        
-        document.querySelectorAll('a[href]:not([target="_blank"]):not([href^="tel:"]):not([href^="mailto:"]):not([href^="#"])').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                overlay.classList.remove('is-loaded');
-                overlay.classList.add('is-leaving');
-                setTimeout(() => window.location.href = link.href, 500);
-            });
-        });
-    }
-
-    window.addEventListener('pageshow', (event) => {
-        const overlayReset = document.getElementById('page-transition');
-        if (overlayReset) {
-            overlayReset.classList.remove('is-leaving');
-            overlayReset.classList.add('is-loaded');
-        }
-    });
 
     // ==========================================================
     // --- LAZY LOADING GLOBAL (Intersection Observer) ---
@@ -231,10 +200,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (settingsData.result) {
                 const s = settingsData.result;
                 if(s.phone) {
+                    // Formatage du numéro de téléphone
+                    let displayPhone = s.phone;
+                    let digits = s.phone.replace(/\D/g, ''); 
+                    if(digits.length === 10) {
+                        displayPhone = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+                    }
+
                     document.querySelectorAll('.contact-item[href^="tel:"]').forEach(el => {
-                        el.href = `tel:${s.phone.replace(/\s/g, '')}`;
+                        el.href = `tel:+1${digits}`; 
                         const span = el.querySelector('span');
-                        if(span) span.textContent = s.phone;
+                        if(span) span.textContent = displayPhone;
                     });
                 }
                 if(s.instagram) {
@@ -298,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // 3. PAGE SERVICES (AJOUT DE L'API HISTORY)
+            // 3. PAGE SERVICES
             const servicesContainer = document.getElementById('services-container');
             const pageHeader = document.getElementById('dynamic-page-header');
             
@@ -313,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const renderCategories = () => {
                         if(pageHeader) {
                             pageHeader.innerHTML = `
-                                <h2 class="page-title">Nos tarifs</h2>
+                                <h2 class="page-title">Nos services</h2>
                                 <p class="page-subtitle">Sélectionnez une catégorie pour voir les prestations</p>
                             `;
                         }
@@ -357,7 +333,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             `;
                             
                             catCard.onclick = () => {
-                                // Enregistrement de la navigation dans l'historique du navigateur
                                 history.pushState({ view: 'subServices' }, '', window.location.pathname + '#prestation');
                                 renderSubServices(cat);
                             };
@@ -379,7 +354,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             
                             document.getElementById('btn-back-categories').addEventListener('click', (e) => {
                                 e.preventDefault();
-                                // Simulation d'un clic sur la flèche retour du navigateur
                                 if (window.location.hash === '#prestation') {
                                     history.back();
                                 } else {
@@ -469,15 +443,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     };
 
-                    // Écouteur pour capturer le bouton "Précédent" du navigateur
                     window.addEventListener('popstate', (event) => {
-                        // Si le hash #prestation a disparu de l'URL, on recharge la liste des catégories
                         if (window.location.hash !== '#prestation') {
                             renderCategories();
                         }
                     });
 
-                    // Sécurité : Nettoyage initial de l'URL en cas de rafraîchissement manuel
                     if (window.location.hash === '#prestation') {
                         history.replaceState(null, '', window.location.pathname);
                     }
