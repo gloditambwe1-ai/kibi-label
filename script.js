@@ -6,26 +6,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- NAVIGATION ACTIVE (Garantie 100% Netlify & Local) ---
     // ==========================================================
     
-    // On extrait uniquement le dernier mot de l'URL (le nom du fichier)
-    let currentPage = window.location.pathname.split('/').pop();
-    
-    // Si on est à la racine (ex: localhost:3000/ ou kibilabel.ca/), currentPage est vide
-    if (currentPage === '' || currentPage === '/') {
-        currentPage = 'index';
-    }
-    
-    // On nettoie l'extension pour pouvoir comparer proprement
-    currentPage = currentPage.replace('.html', '');
+    // On extrait proprement le dernier segment de l'URL en ignorant les slashs finaux (ex: Netlify)
+    let pathArray = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');
+    let currentPage = pathArray.pop() || 'index';
+    currentPage = currentPage.replace(/\.html$/, '');
 
     document.querySelectorAll('.nav-links a').forEach(link => {
         link.classList.remove('active');
         let linkHref = link.getAttribute('href');
         
         if (linkHref) {
-            let cleanLink = linkHref.replace('.html', '');
-            if (cleanLink === '' || cleanLink === '/') cleanLink = 'index';
+            // Même nettoyage pour les liens du menu HTML
+            let linkArray = linkHref.replace(/^\/+|\/+$/g, '').split('/');
+            let cleanLink = linkArray.pop() || 'index';
+            cleanLink = cleanLink.replace(/\.html$/, '');
 
-            // Si le lien correspond à la page actuelle, on l'active
+            // Comparaison finale
             if (currentPage === cleanLink) {
                 link.classList.add('active');
             }
@@ -114,7 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (lightbox && lightboxImg && galleryItems.length > 0) {
             galleryItems.forEach(img => {
                 img.onclick = () => {
-                    lightboxImg.src = img.src;
+                    // Chargement de l'image Haute Définition stockée dans l'attribut data-full-res
+                    lightboxImg.src = img.getAttribute('data-full-res') || img.src;
                     lightbox.classList.add('active');
                 };
             });
@@ -200,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (settingsData.result) {
                 const s = settingsData.result;
                 if(s.phone) {
-                    // Formatage du numéro de téléphone
                     let displayPhone = s.phone;
                     let digits = s.phone.replace(/\D/g, ''); 
                     if(digits.length === 10) {
@@ -224,7 +220,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if(s.policyImg) {
                     const modalImg = document.getElementById('policy-modal-img');
-                    if (modalImg) modalImg.src = s.policyImg;
+                    // Optimisation de l'image de la politique (largeur 800px)
+                    if (modalImg) modalImg.src = `${s.policyImg}?auto=format&q=80&w=800`;
                 }
                 if(s.email) {
                     document.querySelectorAll('.contact-item[href^="mailto:"]').forEach(el => {
@@ -258,18 +255,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     if(h.heroImg) {
                         const img = document.querySelector('.hero-image-side img');
-                        img.loading = "lazy";
-                        img.src = h.heroImg;
+                        // Suppression de l'attribut lazy pour un chargement immédiat (LCP)
+                        img.removeAttribute('loading');
+                        // Optimisation à 1200px de large
+                        img.src = `${h.heroImg}?auto=format&q=80&w=1200`;
                     }
                     if(h.avantImg) {
                         const img = document.querySelector('.img-background');
                         img.loading = "lazy";
-                        img.src = h.avantImg;
+                        img.src = `${h.avantImg}?auto=format&q=80&w=1200`;
                     }
                     if(h.apresImg) {
                         const img = document.querySelector('.img-foreground');
                         img.loading = "lazy";
-                        img.src = h.apresImg;
+                        img.src = `${h.apresImg}?auto=format&q=80&w=1200`;
                     }
                 }
             }
@@ -294,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             `;
                         }
                         
-                        // Nettoyage de l'URL si on remonte dans l'arborescence manuellement
                         if (window.location.hash === '#prestation') {
                             history.replaceState(null, '', window.location.pathname);
                         }
@@ -473,7 +471,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         let imgsHtml = '';
                         if(cat.images) {
                             cat.images.forEach(imgUrl => {
-                                imgsHtml += `<div class="gallery-item"><img src="${imgUrl}" alt="Réalisation ${cat.title}" loading="lazy"></div>`;
+                                // Génération des deux formats : miniature allégée (w=600) et Full HD pour la lightbox (w=1600)
+                                const thumbnail = `${imgUrl}?auto=format&q=80&w=600`;
+                                const fullRes = `${imgUrl}?auto=format&q=80&w=1600`;
+                                imgsHtml += `<div class="gallery-item"><img src="${thumbnail}" data-full-res="${fullRes}" alt="Réalisation ${cat.title}" loading="lazy"></div>`;
                             });
                         }
                         catDiv.innerHTML = `
@@ -499,7 +500,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(ab.imgUrl) {
                         const img = document.querySelector('.about-image-wrapper img');
                         img.loading = "lazy";
-                        img.src = ab.imgUrl;
+                        // Optimisation à 800px pour la page à propos
+                        img.src = `${ab.imgUrl}?auto=format&q=80&w=800`;
                     }
                     if(ab.title) document.querySelector('.about-text h3').textContent = ab.title;
                     
