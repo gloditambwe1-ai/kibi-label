@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
     <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
+    <script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark-mode")}catch(e){}</script>
 </head>
 <body>
 
@@ -39,7 +40,7 @@
             <div id="policy-modal-close" style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--terracotta);"><i class="fa-solid fa-xmark"></i></div>
             <h3 style="font-family: var(--font-titre); font-size: 24px; color: var(--terracotta); margin-top: 10px;">Politique de rendez-vous</h3>
             <div style="max-height: 50vh; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border-input); background: var(--bg-input);">
-                <img id="policy-modal-img" src="" alt="Politique de rendez-vous" style="width: 100%; height: auto; object-fit: contain; display: block; border-radius: 8px;">
+                <img id="policy-modal-img" alt="Politique de rendez-vous" style="width: 100%; height: auto; object-fit: contain; display: block; border-radius: 8px;">
             </div>
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-family: var(--font-texte); font-size: 14px;">
                 <input type="checkbox" id="policy-checkbox" style="cursor: pointer; transform: scale(1.2);">
@@ -51,25 +52,25 @@
 
     <header class="top-navbar">
         <div class="navbar-left">
-            <div class="menu-toggle" id="menu-open"><i class="fa-solid fa-bars"></i></div>
+            <button type="button" class="menu-toggle" id="menu-open" aria-label="Ouvrir le menu" aria-controls="sidebar" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
             <div class="logo-container"><h1 class="logo">Kibi <span>LABEL</span></h1></div>
         </div>
         <div class="navbar-right">
-            <div class="theme-toggle" id="theme-toggle" title="Mode sombre"><i class="fa-regular fa-moon"></i></div>
+            <button type="button" class="theme-toggle" id="theme-toggle" title="Mode sombre" aria-label="Basculer le mode sombre" aria-pressed="false"><i class="fa-regular fa-moon" aria-hidden="true"></i></button>
         </div>
     </header>
 
     <nav class="sidebar-offcanvas" id="sidebar">
         <div class="sidebar-offcanvas-header">
             <h1 class="logo">Kibi <span>LABEL</span></h1>
-            <div class="menu-close" id="menu-close"><i class="fa-solid fa-xmark"></i></div>
+            <button type="button" class="menu-close" id="menu-close" aria-label="Fermer le menu"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
         </div>
         <ul class="nav-links">
-            <li><a href="index.html">Accueil</a></li>
-            <li><a href="services.html">Services & Tarifs</a></li>
-            <li><a href="realisation.html">Réalisation</a></li>
-            <li><a href="a-propos.html">À Propos</a></li>
-            <li><a href="contact.html">Contact</a></li>
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/services">Services &amp; Tarifs</a></li>
+            <li><a href="/realisation">Réalisation</a></li>
+            <li><a href="/a-propos">À Propos</a></li>
+            <li><a href="/contact">Contact</a></li>
         </ul>
     </nav>
 

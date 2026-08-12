@@ -17,6 +17,9 @@
 }
 
 /* --- MODE SOMBRE (DARK MODE) --- */
+/* `html.dark-mode` est posé par le script d'amorçage du <head> : il applique
+   le thème dès le premier rendu, avant que script.js ne classe le <body>. */
+html.dark-mode body,
 body.dark-mode {
     --creme: #1a0f0d; 
     --noir-profond: #fcf9f8; 
@@ -80,6 +83,24 @@ body {
 .top-navbar { width: 100%; height: 90px; position: fixed; top: 0; left: 0; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; background-color: var(--bg-navbar); backdrop-filter: blur(10px); z-index: 100; box-shadow: 0 4px 15px var(--ombre-douce); transition: background-color 0.4s ease; }
 .navbar-left { display: flex; align-items: center; gap: 30px; }
 .navbar-right { display: flex; align-items: center; }
+/* Les bascules sont des <button> (accessibilité clavier) : on neutralise
+   le style natif pour conserver l'apparence d'origine. */
+.theme-toggle, .menu-toggle, .menu-close {
+    background: none; border: none; font-family: inherit; line-height: 1;
+}
+.theme-toggle:focus-visible, .menu-toggle:focus-visible, .menu-close:focus-visible,
+.nav-links a:focus-visible, .cta-button:focus-visible, .service-btn:focus-visible {
+    outline: 2px solid var(--terracotta); outline-offset: 3px; border-radius: 4px;
+}
+
+/* États de repli quand le back-office ne répond pas ou n'a rien publié */
+.loading-error, .empty-state {
+    text-align: center; width: 100%; padding: 40px 20px;
+    font-family: var(--font-texte); font-size: 15px; line-height: 1.7;
+    color: var(--noir-profond); opacity: 0.85;
+}
+.loading-error { color: var(--terracotta-fonce); }
+
 .theme-toggle { font-size: 22px; color: var(--terracotta); cursor: pointer; transition: transform 0.3s ease; padding: 10px; }
 .theme-toggle:hover { transform: scale(1.1); }
 .logo-container { text-align: left; }

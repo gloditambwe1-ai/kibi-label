@@ -1,6 +1,21 @@
 /*
   X-Frame-Options: DENY
-  X-XSS-Protection: 1; mode=block
   X-Content-Type-Options: nosniff
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-F3Dqoggm0mf6x/HEbxwUWAVwMjmFRyw7jhl3KqOQR8Y=' https://assets.calendly.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://assets.calendly.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://cdn.sanity.io https://*.sanity.io https://*.calendly.com; connect-src 'self' https://*.api.sanity.io https://*.calendly.com; frame-src https://calendly.com https://*.calendly.com; form-action https://formsubmit.co; base-uri 'self'; object-src 'none'; frame-ancestors 'none'
+
+# Le HTML doit rester revalidé pour que les mises à jour soient visibles ;
+# les médias, eux, peuvent être mis en cache longtemps.
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/images/*
+  Cache-Control: public, max-age=2592000
+
+/*.png
+  Cache-Control: public, max-age=2592000
+
+/*.svg
+  Cache-Control: public, max-age=2592000

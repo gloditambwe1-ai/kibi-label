@@ -1,6 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
-    console.log("Kibi Label - Connecté à Sanity !");
+
+    // ==========================================================
+    // --- UTILITAIRES ---
+    // ==========================================================
+
+    // Échappe le contenu venu de Sanity avant toute insertion via innerHTML.
+    // Sans ça, une simple apostrophe dans un nom de service casse la page.
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[c]);
+
+    // Ne laisse passer qu'un code hexadécimal ; toute autre saisie retombe
+    // sur la variable de thème, pour ne pas injecter de CSS arbitraire.
+    const safeColor = (value, fallback) =>
+        /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(value ?? '').trim()) ? value.trim() : fallback;
+
+    // Message visible si le back-office ne répond pas, pour ne jamais
+    // laisser le visiteur devant une page vide et muette.
+    const showLoadingError = () => {
+        const containers = [
+            document.getElementById('services-container'),
+            document.getElementById('portfolio-container')
+        ].filter(el => el && !el.dataset.contentLoaded);
+
+        containers.forEach(el => {
+            const notice = document.createElement('p');
+            notice.className = 'loading-error';
+            notice.textContent = "Le contenu n'a pas pu être chargé pour le moment. "
+                + "Merci de réessayer dans quelques instants ou de nous joindre au 418-900-1191.";
+            el.appendChild(notice);
+        });
+    };
 
     // ==========================================================
     // --- NAVIGATION ACTIVE (Garantie 100% Netlify & Local) ---
@@ -33,17 +63,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
     const themeIcon = themeToggle ? themeToggle.querySelector('i') : null;
 
-    if (localStorage.getItem('theme') === 'dark') {
-        body.classList.add('dark-mode');
-        if (themeIcon) { themeIcon.classList.replace('fa-moon', 'fa-sun'); }
-    }
+    // Le <html> porte déjà la classe si le script d'amorçage du <head> l'a posée
+    // (anti-flash) ; on aligne simplement le <body>, ciblé par le CSS.
+    const isDarkStored = document.documentElement.classList.contains('dark-mode')
+        || localStorage.getItem('theme') === 'dark';
+
+    const applyTheme = (isDark) => {
+        body.classList.toggle('dark-mode', isDark);
+        document.documentElement.classList.toggle('dark-mode', isDark);
+        if (themeIcon) {
+            themeIcon.classList.toggle('fa-sun', isDark);
+            themeIcon.classList.toggle('fa-moon', !isDark);
+        }
+        if (themeToggle) themeToggle.setAttribute('aria-pressed', String(isDark));
+    };
+
+    applyTheme(isDarkStored);
 
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            const isDark = body.classList.contains('dark-mode');
+            const isDark = !body.classList.contains('dark-mode');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            themeIcon.classList.replace(isDark ? 'fa-moon' : 'fa-sun', isDark ? 'fa-sun' : 'fa-moon');
+            applyTheme(isDark);
         });
     }
 
@@ -81,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleMenu = (show) => {
         if(sidebar) sidebar.classList.toggle('active', show);
         if(pageOverlay) pageOverlay.classList.toggle('active', show);
+        if(menuOpen) menuOpen.setAttribute('aria-expanded', String(show));
     };
 
     if (menuOpen) menuOpen.onclick = () => toggleMenu(true);
@@ -152,6 +194,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Délégation d'événement : les boutons « Réserver » sont créés dynamiquement,
+    // et cette approche évite les gestionnaires onclick inline (requis pour la CSP).
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-calendly]');
+        if (btn) {
+            e.preventDefault();
+            window.triggerPolicyModal(btn.getAttribute('data-calendly'));
+        }
+    });
+
     const policyModal = document.getElementById('policy-modal');
     const policyClose = document.getElementById('policy-modal-close');
     const policyCheckbox = document.getElementById('policy-checkbox');
@@ -187,15 +239,49 @@ document.addEventListener('DOMContentLoaded', () => {
     const DATASET = 'production';
     const QUERY_URL = `https://${PROJECT_ID}.api.sanity.io/v2021-10-21/data/query/${DATASET}?query=`;
 
+    const sanityFetch = async (query) => {
+        const res = await fetch(QUERY_URL + encodeURIComponent(query));
+        if (!res.ok) throw new Error(`Sanity a répondu ${res.status}`);
+        return (await res.json()).result;
+    };
+
     async function fetchSanityData() {
+        // Les requêtes utiles à la page courante sont lancées d'un bloc :
+        // en série, chaque page attendait inutilement la précédente.
+        const path = window.location.pathname;
+        const heroSection = document.querySelector('.hero-section');
+        const servicesContainer = document.getElementById('services-container');
+        const portfolioContainer = document.getElementById('portfolio-container');
+        const aboutContainer = document.querySelector('.about-container');
+
+        const wantsServices = servicesContainer && path.includes('services');
+        const wantsPortfolio = portfolioContainer && path.includes('realisation');
+        const wantsAbout = aboutContainer && path.includes('a-propos');
+
+        const settingsPromise = sanityFetch('*[_type == "siteSettings"][0]{phone, email, instagram, snapchat, tiktok, "policyImg": appointmentPolicy.asset->url}');
+        const homePromise = heroSection
+            ? sanityFetch('*[_type == "homePage"][0]{heroTitle, ctaText, "heroImg": heroImage.asset->url, "avantImg": avantImage.asset->url, "apresImg": apresImage.asset->url}')
+            : null;
+        const servicesPromise = wantsServices
+            ? sanityFetch('*[_type == "serviceCategory"] | order(_createdAt asc) {title, calendlyLink, colorStyle, customBgColor, customTextColor, subServices[]{name, price, subSubServices[]{name, price}}}')
+            : null;
+        const portfolioPromise = wantsPortfolio
+            ? sanityFetch('*[_type == "portfolioCategory"] | order(_createdAt asc) {title, "images": images[].asset->url}')
+            : null;
+        const aboutPromise = wantsAbout
+            ? sanityFetch('*[_type == "aboutPage"][0]{title, paragraphs, "imgUrl": image.asset->url}')
+            : null;
+
+        // Évite un « unhandled rejection » si une requête échoue avant son await.
+        [homePromise, servicesPromise, portfolioPromise, aboutPromise]
+            .forEach(p => p && p.catch(() => {}));
+
         try {
             // 1. PARAMÈTRES GLOBAUX
-            const settingsQuery = encodeURIComponent('*[_type == "siteSettings"][0]{phone, email, instagram, snapchat, tiktok, "policyImg": appointmentPolicy.asset->url}');
-            const settingsRes = await fetch(QUERY_URL + settingsQuery);
-            const settingsData = await settingsRes.json();
-            
-            if (settingsData.result) {
-                const s = settingsData.result;
+            const settingsResult = await settingsPromise;
+
+            if (settingsResult) {
+                const s = settingsResult;
                 if(s.phone) {
                     let displayPhone = s.phone;
                     let digits = s.phone.replace(/\D/g, ''); 
@@ -242,48 +328,47 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 2. PAGE ACCUEIL
-            const heroSection = document.querySelector('.hero-section');
-            if (heroSection) {
-                const homeQuery = encodeURIComponent('*[_type == "homePage"][0]{heroTitle, ctaText, "heroImg": heroImage.asset->url, "avantImg": avantImage.asset->url, "apresImg": apresImage.asset->url}');
-                const homeRes = await fetch(QUERY_URL + homeQuery);
-                const homeData = await homeRes.json();
-                
-                if (homeData.result) {
-                    const h = homeData.result;
-                    if(h.heroTitle) document.querySelector('.hero-title').innerHTML = h.heroTitle.replace(/\\n/g, '<br>');
-                    if(h.ctaText) document.querySelector('.hero-section .cta-button').textContent = h.ctaText;
-                    
+            if (homePromise) {
+                const h = await homePromise;
+
+                if (h) {
+                    const heroTitleEl = document.querySelector('.hero-title');
+                    const heroCtaEl = document.querySelector('.hero-section .cta-button');
+
+                    if(h.heroTitle && heroTitleEl) {
+                        // Seul le saut de ligne est autorisé : le reste est échappé.
+                        heroTitleEl.innerHTML = escapeHtml(h.heroTitle).replace(/\\n/g, '<br>');
+                    }
+                    if(h.ctaText && heroCtaEl) heroCtaEl.textContent = h.ctaText;
+
                     if(h.heroImg) {
                         const img = document.querySelector('.hero-image-side img');
-                        // Suppression de l'attribut lazy pour un chargement immédiat (LCP)
-                        img.removeAttribute('loading');
-                        // Optimisation à 1200px de large
-                        img.src = `${h.heroImg}?auto=format&q=80&w=1200`;
+                        if (img) {
+                            // Suppression de l'attribut lazy pour un chargement immédiat (LCP)
+                            img.removeAttribute('loading');
+                            // Optimisation à 1200px de large
+                            img.src = `${h.heroImg}?auto=format&q=80&w=1200`;
+                        }
                     }
                     if(h.avantImg) {
                         const img = document.querySelector('.img-background');
-                        img.loading = "lazy";
-                        img.src = `${h.avantImg}?auto=format&q=80&w=1200`;
+                        if (img) img.src = `${h.avantImg}?auto=format&q=80&w=1200`;
                     }
                     if(h.apresImg) {
                         const img = document.querySelector('.img-foreground');
-                        img.loading = "lazy";
-                        img.src = `${h.apresImg}?auto=format&q=80&w=1200`;
+                        if (img) img.src = `${h.apresImg}?auto=format&q=80&w=1200`;
                     }
                 }
             }
 
             // 3. PAGE SERVICES
-            const servicesContainer = document.getElementById('services-container');
             const pageHeader = document.getElementById('dynamic-page-header');
-            
-            if (servicesContainer && window.location.pathname.includes('services')) {
-                const srvQuery = encodeURIComponent('*[_type == "serviceCategory"] | order(_createdAt asc) {title, colorStyle, customBgColor, customTextColor, subServices[]{name, price, calendlyLink, subSubServices[]{name, price, calendlyLink}}}');
-                const srvRes = await fetch(QUERY_URL + srvQuery);
-                const srvData = await srvRes.json();
-                
-                if (srvData.result && srvData.result.length > 0) {
-                    const categories = srvData.result;
+
+            if (servicesPromise) {
+                const categories = await servicesPromise;
+
+                if (categories && categories.length > 0) {
+                    servicesContainer.dataset.contentLoaded = 'true';
 
                     const renderCategories = () => {
                         if(pageHeader) {
@@ -307,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (cat.colorStyle === 'peche') {
                                 themeClass += ' light-card';
                             } else if (cat.colorStyle === 'custom') {
-                                inlineStyle = `background-color: ${cat.customBgColor || 'var(--creme)'}; color: ${cat.customTextColor || 'var(--noir-profond)'}; border: 2px solid rgba(189,106,89,0.2);`;
+                                inlineStyle = `background-color: ${safeColor(cat.customBgColor, 'var(--creme)')}; color: ${safeColor(cat.customTextColor, 'var(--noir-profond)')}; border: 2px solid rgba(189,106,89,0.2);`;
                             } else {
                                 themeClass += ' dark-card'; 
                             }
@@ -324,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             catCard.style.minHeight = '180px';
                             
                             catCard.innerHTML = `
-                                <h3 style="font-family: 'Playfair Display', serif; font-size: 26px; text-align: center; margin-bottom: 10px;">${cat.title}</h3>
+                                <h3 style="font-family: 'Playfair Display', serif; font-size: 26px; text-align: center; margin-bottom: 10px;">${escapeHtml(cat.title)}</h3>
                                 <div style="font-family: 'Montserrat', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; border-bottom: 1px solid currentColor; padding-bottom: 2px; opacity: 0.8;">
                                     Voir les prestations
                                 </div>
@@ -346,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <button type="button" id="btn-back-categories" class="back-btn">
                                     <i class="fa-solid fa-arrow-left"></i> Retour aux catégories
                                 </button>
-                                <h2 class="page-title">${cat.title}</h2>
+                                <h2 class="page-title">${escapeHtml(cat.title)}</h2>
                                 <p class="page-subtitle">Sélectionnez votre prestation pour réserver</p>
                             `;
                             
@@ -374,12 +459,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 if (cat.colorStyle === 'peche') {
                                     themeClass += ' light-card';
                                 } else if (cat.colorStyle === 'custom') {
-                                    cardStyle = `background-color: ${cat.customBgColor || 'var(--creme)'}; color: ${cat.customTextColor || 'var(--noir-profond)'}; border: 2px solid rgba(189,106,89,0.2);`;
-                                    
+                                    cardStyle = `background-color: ${safeColor(cat.customBgColor, 'var(--creme)')}; color: ${safeColor(cat.customTextColor, 'var(--noir-profond)')}; border: 2px solid rgba(189,106,89,0.2);`;
+
                                     if (cat.customTextColor === '#ffffff') {
-                                        btnStyle = `background: #ffffff; color: ${cat.customBgColor || 'var(--terracotta)'}; border: none;`;
+                                        btnStyle = `background: #ffffff; color: ${safeColor(cat.customBgColor, 'var(--terracotta)')}; border: none;`;
                                     } else {
-                                        btnStyle = `background: ${cat.customBgColor || 'var(--terracotta)'}; color: #ffffff; border: none;`;
+                                        btnStyle = `background: ${safeColor(cat.customBgColor, 'var(--terracotta)')}; color: #ffffff; border: none;`;
                                     }
                                 } else {
                                     themeClass += ' dark-card';
@@ -390,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 if (cardStyle) subCard.setAttribute('style', cardStyle);
                                 
                                 if (sub.subSubServices && sub.subSubServices.length > 0) {
-                                    let subSubHtml = `<h3 style="text-align:center; margin-bottom:20px; font-family: 'Playfair Display', serif;">${sub.name}</h3>`;
+                                    let subSubHtml = `<h3 style="text-align:center; margin-bottom:20px; font-family: 'Playfair Display', serif;">${escapeHtml(sub.name)}</h3>`;
                                     
                                     subSubHtml += `<div class="sub-sub-list-container">`;
                                     
@@ -402,11 +487,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                             subSubHtml += `
                                                 <div style="${borderStyle} display: flex; flex-direction: column; gap: 10px;">
                                                     <div class="price-row">
-                                                        <span class="service-name" style="font-weight: 500;">${subSub.name}</span>
+                                                        <span class="service-name" style="font-weight: 500;">${escapeHtml(subSub.name)}</span>
                                                         <span class="dots"></span>
                                                         <div class="price-action">
-                                                            <span class="price-amount">${subSub.price || 'Sur devis'}</span>
-                                                            <button onclick="triggerPolicyModal('${subSub.calendlyLink || '#'}')" class="service-btn service-btn-small" ${btnStyle ? `style="${btnStyle}"` : ''}>Réserver</button>
+                                                            <span class="price-amount">${escapeHtml(subSub.price || 'Sur devis')}</span>
+                                                            <button type="button" data-calendly="${escapeHtml(cat.calendlyLink || '#')}" class="service-btn service-btn-small" ${btnStyle ? `style="${btnStyle}"` : ''}>Réserver</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -418,14 +503,14 @@ document.addEventListener('DOMContentLoaded', () => {
                                     subCard.innerHTML = subSubHtml;
                                 } else {
                                     subCard.innerHTML = `
-                                        <h3 style="text-align:center; margin-bottom:20px; font-family: 'Playfair Display', serif;">${sub.name}</h3>
+                                        <h3 style="text-align:center; margin-bottom:20px; font-family: 'Playfair Display', serif;">${escapeHtml(sub.name)}</h3>
                                         <div class="price-list">
                                             <div class="price-row">
                                                 <span class="service-name">Prestation</span>
                                                 <span class="dots"></span>
                                                 <div class="price-action">
-                                                    <span class="price-amount">${sub.price || 'Sur devis'}</span>
-                                                    <button onclick="triggerPolicyModal('${sub.calendlyLink || '#'}')" class="service-btn service-btn-small" ${btnStyle ? `style="${btnStyle}"` : ''}>Réserver</button>
+                                                    <span class="price-amount">${escapeHtml(sub.price || 'Sur devis')}</span>
+                                                    <button type="button" data-calendly="${escapeHtml(cat.calendlyLink || '#')}" class="service-btn service-btn-small" ${btnStyle ? `style="${btnStyle}"` : ''}>Réserver</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -452,64 +537,72 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     renderCategories();
+                } else {
+                    servicesContainer.innerHTML =
+                        '<p class="empty-state">Aucun service n\'est publié pour le moment.</p>';
+                    servicesContainer.dataset.contentLoaded = 'true';
                 }
             }
 
             // 4. PAGE RÉALISATIONS
-            const portfolioContainer = document.querySelector('.page-section');
-            if (portfolioContainer && window.location.pathname.includes('realisation')) {
-                const portQuery = encodeURIComponent('*[_type == "portfolioCategory"] | order(_createdAt asc) {title, "images": images[].asset->url}');
-                const portRes = await fetch(QUERY_URL + portQuery);
-                const portData = await portRes.json();
-                
-                if (portData.result && portData.result.length > 0) {
+            if (portfolioPromise) {
+                const portfolioCategories = await portfolioPromise;
+                // Une catégorie sans photo n'afficherait qu'un titre suivi du vide.
+                const filledCategories = (portfolioCategories || [])
+                    .filter(cat => cat.images && cat.images.length > 0);
+
+                portfolioContainer.dataset.contentLoaded = 'true';
+
+                if (filledCategories.length > 0) {
                     document.querySelectorAll('.portfolio-category').forEach(el => el.remove());
-                    
-                    portData.result.forEach(cat => {
+
+                    filledCategories.forEach(cat => {
                         const catDiv = document.createElement('div');
                         catDiv.className = 'portfolio-category';
                         let imgsHtml = '';
-                        if(cat.images) {
+                        {
                             cat.images.forEach(imgUrl => {
                                 // Génération des deux formats : miniature allégée (w=600) et Full HD pour la lightbox (w=1600)
                                 const thumbnail = `${imgUrl}?auto=format&q=80&w=600`;
                                 const fullRes = `${imgUrl}?auto=format&q=80&w=1600`;
-                                imgsHtml += `<div class="gallery-item"><img src="${thumbnail}" data-full-res="${fullRes}" alt="Réalisation ${cat.title}" loading="lazy"></div>`;
+                                imgsHtml += `<div class="gallery-item"><img src="${escapeHtml(thumbnail)}" data-full-res="${escapeHtml(fullRes)}" alt="Réalisation ${escapeHtml(cat.title)}" loading="lazy"></div>`;
                             });
                         }
                         catDiv.innerHTML = `
-                            <h3>${cat.title}</h3>
+                            <h3>${escapeHtml(cat.title)}</h3>
                             <div class="gallery-grid">${imgsHtml}</div>
                         `;
                         portfolioContainer.appendChild(catDiv);
                     });
                     initLightbox();
                     initLazyScrollReveal();
+                } else {
+                    const notice = document.createElement('p');
+                    notice.className = 'empty-state';
+                    notice.textContent = 'Nos réalisations seront publiées très prochainement. '
+                        + 'En attendant, retrouvez notre travail sur Instagram.';
+                    portfolioContainer.appendChild(notice);
                 }
             }
 
             // 5. PAGE À PROPOS
-            const aboutContainer = document.querySelector('.about-container');
-            if (aboutContainer && window.location.pathname.includes('a-propos')) {
-                const aboutQuery = encodeURIComponent('*[_type == "aboutPage"][0]{title, paragraphs, "imgUrl": image.asset->url}');
-                const aboutRes = await fetch(QUERY_URL + aboutQuery);
-                const aboutData = await aboutRes.json();
-                
-                if (aboutData.result) {
-                    const ab = aboutData.result;
+            if (aboutPromise) {
+                const ab = await aboutPromise;
+
+                if (ab) {
                     if(ab.imgUrl) {
                         const img = document.querySelector('.about-image-wrapper img');
-                        img.loading = "lazy";
-                        // Optimisation à 800px pour la page à propos
-                        img.src = `${ab.imgUrl}?auto=format&q=80&w=800`;
+                        if (img) img.src = `${ab.imgUrl}?auto=format&q=80&w=800`;
                     }
-                    if(ab.title) document.querySelector('.about-text h3').textContent = ab.title;
-                    
+
+                    const aboutHeading = document.querySelector('.about-text h3');
+                    if(ab.title && aboutHeading) aboutHeading.textContent = ab.title;
+
                     if(ab.paragraphs && ab.paragraphs.length > 0) {
                         document.querySelectorAll('.about-text p').forEach(p => p.remove());
                         const aboutTextDiv = document.querySelector('.about-text');
-                        const cta = aboutTextDiv.querySelector('.cta-button'); 
-                        
+                        const cta = aboutTextDiv.querySelector('.cta-button');
+
                         ab.paragraphs.forEach(pText => {
                             const p = document.createElement('p');
                             p.textContent = pText;
@@ -524,6 +617,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch(error) {
             console.error("Erreur de récupération depuis Sanity :", error);
+            // Le contenu statique de secours reste affiché ; on prévient
+            // seulement là où la page dépendait entièrement du back-office.
+            showLoadingError();
         }
     }
 
