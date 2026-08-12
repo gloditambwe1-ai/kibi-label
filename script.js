@@ -489,10 +489,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                                     <div class="price-row">
                                                         <span class="service-name" style="font-weight: 500;">${escapeHtml(subSub.name)}</span>
                                                         <span class="dots"></span>
-                                                        <div class="price-action">
-                                                            <span class="price-amount">${escapeHtml(subSub.price || 'Sur devis')}</span>
-                                                            <button type="button" data-calendly="${escapeHtml(cat.calendlyLink || '#')}" class="service-btn service-btn-small" ${btnStyle ? `style="${btnStyle}"` : ''}>Réserver</button>
-                                                        </div>
+                                                        <span class="price-amount">${escapeHtml(subSub.price || 'Sur devis')}</span>
+                                                        <button type="button" data-calendly="${escapeHtml(cat.calendlyLink || '#')}" class="service-btn service-btn-small" ${btnStyle ? `style="${btnStyle}"` : ''}>Réserver</button>
                                                     </div>
                                                 </div>
                                             `;
@@ -508,10 +506,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                             <div class="price-row">
                                                 <span class="service-name">Prestation</span>
                                                 <span class="dots"></span>
-                                                <div class="price-action">
-                                                    <span class="price-amount">${escapeHtml(sub.price || 'Sur devis')}</span>
-                                                    <button type="button" data-calendly="${escapeHtml(cat.calendlyLink || '#')}" class="service-btn service-btn-small" ${btnStyle ? `style="${btnStyle}"` : ''}>Réserver</button>
-                                                </div>
+                                                <span class="price-amount">${escapeHtml(sub.price || 'Sur devis')}</span>
+                                                <button type="button" data-calendly="${escapeHtml(cat.calendlyLink || '#')}" class="service-btn service-btn-small" ${btnStyle ? `style="${btnStyle}"` : ''}>Réserver</button>
                                             </div>
                                         </div>
                                     `;
