@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const showLoadingError = () => {
         const containers = [
             document.getElementById('services-container'),
+            document.getElementById('guide-container'),
             document.getElementById('portfolio-container')
         ].filter(el => el && !el.dataset.contentLoaded);
 
@@ -251,10 +252,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const path = window.location.pathname;
         const heroSection = document.querySelector('.hero-section');
         const servicesContainer = document.getElementById('services-container');
+        const guideContainer = document.getElementById('guide-container');
         const portfolioContainer = document.getElementById('portfolio-container');
         const aboutContainer = document.querySelector('.about-container');
 
         const wantsServices = servicesContainer && path.includes('services');
+        const wantsGuide = guideContainer && path.includes('guide');
         const wantsPortfolio = portfolioContainer && path.includes('realisation');
         const wantsAbout = aboutContainer && path.includes('a-propos');
 
@@ -265,6 +268,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const servicesPromise = wantsServices
             ? sanityFetch('*[_type == "serviceCategory"] | order(_createdAt asc) {title, calendlyLink, colorStyle, customBgColor, customTextColor, subServices[]{name, price, subSubServices[]{name, price}}}')
             : null;
+        const guidePromise = wantsGuide
+            ? sanityFetch('*[_type == "serviceGuide"] | order(coalesce(order, 9999) asc, _createdAt asc) {title, intro, "mainImg": mainImage.asset->url, subSections[]{name, description, "img": image.asset->url}}')
+            : null;
         const portfolioPromise = wantsPortfolio
             ? sanityFetch('*[_type == "portfolioCategory"] | order(_createdAt asc) {title, "images": images[].asset->url}')
             : null;
@@ -273,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
             : null;
 
         // Évite un « unhandled rejection » si une requête échoue avant son await.
-        [homePromise, servicesPromise, portfolioPromise, aboutPromise]
+        [homePromise, servicesPromise, guidePromise, portfolioPromise, aboutPromise]
             .forEach(p => p && p.catch(() => {}));
 
         try {
@@ -537,6 +543,77 @@ document.addEventListener('DOMContentLoaded', () => {
                     servicesContainer.innerHTML =
                         '<p class="empty-state">Aucun service n\'est publié pour le moment.</p>';
                     servicesContainer.dataset.contentLoaded = 'true';
+                }
+            }
+
+            // 3bis. PAGE GUIDE DES SOINS
+            if (guidePromise) {
+                const guideCategories = await guidePromise;
+                guideContainer.dataset.contentLoaded = 'true';
+
+                // On ne garde que ce qui a réellement quelque chose à expliquer :
+                // une intro/photo de soin, ou des sous-sections décrites/illustrées.
+                const renderableCategories = (guideCategories || []).map(cat => {
+                    const items = (cat.subSections || []).filter(sub => sub.name && (sub.description || sub.img));
+                    return { ...cat, items };
+                }).filter(cat => cat.intro || cat.mainImg || cat.items.length > 0);
+
+                if (renderableCategories.length > 0) {
+                    renderableCategories.forEach(cat => {
+                        const article = document.createElement('article');
+                        article.className = 'guide-category reveal-on-scroll';
+
+                        const coverHtml = cat.mainImg
+                            ? `<img class="guide-category-cover" src="${escapeHtml(cat.mainImg)}?auto=format&q=80&w=1200" alt="${escapeHtml(cat.title)}" loading="lazy">`
+                            : '';
+                        const introHtml = cat.intro
+                            ? `<p class="guide-category-intro">${escapeHtml(cat.intro)}</p>`
+                            : '';
+
+                        let itemsHtml = '';
+                        cat.items.forEach((sub, index) => {
+                            const hasImg = Boolean(sub.img);
+                            const mediaHtml = hasImg
+                                ? `<div class="guide-item-media"><img src="${escapeHtml(sub.img)}?auto=format&q=80&w=800" alt="${escapeHtml(sub.name)}" loading="lazy"></div>`
+                                : '';
+                            // Alternance gauche/droite pour les blocs illustrés.
+                            const reversed = hasImg && index % 2 === 1 ? ' reversed' : '';
+                            const noMedia = hasImg ? '' : ' no-media';
+                            const descHtml = sub.description
+                                ? `<p>${escapeHtml(sub.description)}</p>`
+                                : '';
+
+                            itemsHtml += `
+                                <div class="guide-item${reversed}${noMedia}">
+                                    ${mediaHtml}
+                                    <div class="guide-item-text">
+                                        <h4>${escapeHtml(sub.name)}</h4>
+                                        ${descHtml}
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        article.innerHTML = `
+                            <div class="guide-category-head">
+                                ${coverHtml}
+                                <h3 class="guide-category-title">${escapeHtml(cat.title)}</h3>
+                                ${introHtml}
+                            </div>
+                            ${itemsHtml ? `<div class="guide-items">${itemsHtml}</div>` : ''}
+                        `;
+                        guideContainer.appendChild(article);
+                    });
+
+                    const cta = document.createElement('div');
+                    cta.className = 'guide-cta';
+                    cta.innerHTML = `<a href="/services" class="cta-button">Voir les tarifs et réserver</a>`;
+                    guideContainer.appendChild(cta);
+
+                    initLazyScrollReveal();
+                } else {
+                    guideContainer.innerHTML =
+                        '<p class="empty-state">Le guide des soins sera disponible très prochainement.</p>';
                 }
             }
 

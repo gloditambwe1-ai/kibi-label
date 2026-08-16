@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le guide des soins - Institut de Beauté | Kibi Label</title>
+
+    <meta name="description" content="Comprenez chacun de nos soins esthétiques à Chicoutimi : le guide des soins Kibi Label explique en détail chaque service et ses prestations, photos à l'appui.">
+    <meta name="keywords" content="guide des soins, explication soins esthétiques, prestations institut de beauté chicoutimi, soins beauté saguenay, kibi label guide">
+    <link rel="canonical" href="https://kibilabel.ca/guide">
+
+    <meta property="og:title" content="Le guide des soins - Institut de Beauté | Kibi Label">
+    <meta property="og:description" content="Découvrez et comprenez en détail chacun de nos soins esthétiques à Chicoutimi, expliqués un par un avec photos.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kibilabel.ca/guide">
+
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Kibi Label" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark-mode")}catch(e){}</script>
+
+    <style>
+        .guide-category { margin-bottom: 70px; }
+        .guide-category:last-child { margin-bottom: 0; }
+        .guide-category-head { text-align: center; margin-bottom: 40px; }
+        .guide-category-cover {
+            width: 100%;
+            max-height: 340px;
+            object-fit: cover;
+            border-radius: 16px;
+            border: 1px solid var(--terracotta);
+            box-shadow: 0 15px 35px var(--ombre-douce);
+            margin-bottom: 25px;
+            display: block;
+        }
+        .guide-category-title {
+            font-family: var(--font-titre);
+            font-size: 30px;
+            color: var(--terracotta);
+            margin-bottom: 15px;
+        }
+        .guide-category-intro {
+            font-family: var(--font-texte);
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--noir-profond);
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .guide-items { display: flex; flex-direction: column; gap: 35px; }
+        .guide-item {
+            display: flex;
+            gap: 35px;
+            align-items: center;
+            background: var(--bg-carte);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 30px var(--ombre-douce);
+        }
+        .guide-item.reversed { flex-direction: row-reverse; }
+        .guide-item-media { width: 40%; flex-shrink: 0; }
+        .guide-item-media img {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            border-radius: 12px;
+            display: block;
+        }
+        .guide-item-text { flex: 1; text-align: left; }
+        .guide-item.no-media .guide-item-text { text-align: center; }
+        .guide-item-text h4 {
+            font-family: var(--font-titre);
+            font-size: 22px;
+            color: var(--terracotta);
+            margin-bottom: 12px;
+        }
+        .guide-item-text p {
+            font-family: var(--font-texte);
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--noir-profond);
+        }
+        .guide-cta { text-align: center; margin-top: 60px; }
+
+        @media (max-width: 768px) {
+            .guide-item, .guide-item.reversed { flex-direction: column; gap: 20px; text-align: center; }
+            .guide-item-media { width: 100%; }
+            .guide-item-text { text-align: center; }
+            .guide-category-title { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-transition-overlay" id="page-transition"></div>
+    <div class="page-overlay" id="page-overlay"></div>
+
+    <header class="top-navbar">
+        <div class="navbar-left">
+            <button type="button" class="menu-toggle" id="menu-open" aria-label="Ouvrir le menu" aria-controls="sidebar" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+            <div class="logo-container"><h1 class="logo">Kibi <span>LABEL</span></h1></div>
+        </div>
+        <div class="navbar-right">
+            <button type="button" class="theme-toggle" id="theme-toggle" title="Mode sombre" aria-label="Basculer le mode sombre" aria-pressed="false"><i class="fa-regular fa-moon" aria-hidden="true"></i></button>
+        </div>
+    </header>
+
+    <nav class="sidebar-offcanvas" id="sidebar">
+        <div class="sidebar-offcanvas-header">
+            <h1 class="logo">Kibi <span>LABEL</span></h1>
+            <button type="button" class="menu-close" id="menu-close" aria-label="Fermer le menu"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/services">Services &amp; Tarifs</a></li>
+            <li><a href="/guide">Le guide</a></li>
+            <li><a href="/realisation">Réalisation</a></li>
+            <li><a href="/a-propos">À Propos</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <section class="page-section">
+            <div class="page-header">
+                <h2 class="page-title">Le guide des soins</h2>
+                <p class="page-subtitle">Comprendre chacune de nos prestations en détail</p>
+            </div>
+
+            <div id="guide-container"></div>
+        </section>
+
+        <footer class="bottom-footer">
+            <a href="tel:+1418-900-1191" class="contact-item"><i class="fa-solid fa-phone"></i><span>418-900-1191</span></a>
+            <a href="https://www.instagram.com/kibi_label/" target="_blank" class="contact-item"><i class="fa-brands fa-instagram"></i><span>@Kibi_label</span></a>
+            <a href="https://www.tiktok.com/@kibilabel" target="_blank" class="contact-item"><i class="fa-brands fa-tiktok"></i><span>Kibi Label</span></a>
+            <a href="https://snapchat.com/t/vFmJueij" target="_blank" class="contact-item"><i class="fa-brands fa-snapchat"></i><span>kibilabel</span></a>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

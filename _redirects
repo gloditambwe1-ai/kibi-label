@@ -2,6 +2,7 @@
 # et du sitemap. Le « ! » force la règle bien qu'un fichier existe à la source.
 /index.html         /              301!
 /services.html      /services      301!
+/guide.html         /guide         301!
 /realisation.html   /realisation   301!
 /a-propos.html      /a-propos      301!
 /contact.html       /contact       301!
