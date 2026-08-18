@@ -52,9 +52,11 @@
             opacity: 0.85;
         }
 
-        /* Vue détail d'un soin : image entière (jamais rognée ni zoomée) */
+        /* Vue détail d'un soin : image entière (jamais rognée ni zoomée), mais plafonnée */
         .guide-cover {
-            width: 100%;
+            max-width: 100%;
+            width: auto;
+            max-height: 380px;
             height: auto;
             display: block;
             border-radius: 16px;
@@ -83,9 +85,17 @@
             box-shadow: 0 10px 30px var(--ombre-douce);
         }
         .guide-item.reversed { flex-direction: row-reverse; }
-        .guide-item-media { width: 45%; flex-shrink: 0; }
+        .guide-item-media {
+            width: 38%;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
         .guide-item-media img {
-            width: 100%;
+            max-width: 100%;
+            max-height: 280px;
+            width: auto;
             height: auto;
             display: block;
             border-radius: 12px;
@@ -108,13 +118,16 @@
 
         /* Ratio image / texte adapté à la taille de l'écran */
         @media (max-width: 992px) {
-            .guide-item-media { width: 50%; }
+            .guide-item-media { width: 42%; }
+            .guide-item-media img { max-height: 240px; }
         }
         @media (max-width: 768px) {
             .guide-cards { grid-template-columns: 1fr; }
-            .guide-item, .guide-item.reversed { flex-direction: column; gap: 22px; text-align: center; }
-            .guide-item-media { width: 100%; max-width: 480px; margin: 0 auto; }
+            .guide-item, .guide-item.reversed { flex-direction: column; gap: 20px; text-align: center; }
+            .guide-item-media { width: 100%; }
+            .guide-item-media img { max-height: 320px; }
             .guide-item-text { text-align: center; }
+            .guide-cover { max-height: 300px; }
         }
     </style>
 </head>
