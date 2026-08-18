@@ -29,37 +29,53 @@
     <script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark-mode")}catch(e){}</script>
 
     <style>
-        .guide-category { margin-bottom: 70px; }
-        .guide-category:last-child { margin-bottom: 0; }
-        .guide-category-head { text-align: center; margin-bottom: 40px; }
-        .guide-category-cover {
+        /* Titre principal : toujours sur une seule ligne, quelle que soit la taille d'écran */
+        .guide-main-title { white-space: nowrap; font-size: clamp(1.4rem, 6.4vw, 42px); }
+
+        /* Page d'accueil du guide : grille des soins */
+        .guide-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; }
+        .guide-service-card {
+            cursor: pointer;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            min-height: 160px;
+        }
+        .guide-service-card h3 { font-family: var(--font-titre); font-size: 26px; margin-bottom: 10px; }
+        .guide-service-card .hint {
+            font-family: var(--font-texte);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            border-bottom: 1px solid currentColor;
+            padding-bottom: 2px;
+            opacity: 0.85;
+        }
+
+        /* Vue détail d'un soin : image entière (jamais rognée ni zoomée) */
+        .guide-cover {
             width: 100%;
-            max-height: 340px;
-            object-fit: cover;
+            height: auto;
+            display: block;
             border-radius: 16px;
             border: 1px solid var(--terracotta);
             box-shadow: 0 15px 35px var(--ombre-douce);
-            margin-bottom: 25px;
-            display: block;
+            margin: 0 auto 25px;
         }
-        .guide-category-title {
-            font-family: var(--font-titre);
-            font-size: 30px;
-            color: var(--terracotta);
-            margin-bottom: 15px;
-        }
-        .guide-category-intro {
+        .guide-intro {
             font-family: var(--font-texte);
             font-size: 16px;
             line-height: 1.8;
             color: var(--noir-profond);
             max-width: 720px;
             margin: 0 auto;
+            text-align: center;
         }
-        .guide-items { display: flex; flex-direction: column; gap: 35px; }
+
+        .guide-items { display: flex; flex-direction: column; gap: 40px; margin-top: 45px; }
         .guide-item {
             display: flex;
-            gap: 35px;
+            gap: 40px;
             align-items: center;
             background: var(--bg-carte);
             border-radius: 16px;
@@ -67,13 +83,12 @@
             box-shadow: 0 10px 30px var(--ombre-douce);
         }
         .guide-item.reversed { flex-direction: row-reverse; }
-        .guide-item-media { width: 40%; flex-shrink: 0; }
+        .guide-item-media { width: 45%; flex-shrink: 0; }
         .guide-item-media img {
             width: 100%;
-            aspect-ratio: 4 / 3;
-            object-fit: cover;
-            border-radius: 12px;
+            height: auto;
             display: block;
+            border-radius: 12px;
         }
         .guide-item-text { flex: 1; text-align: left; }
         .guide-item.no-media .guide-item-text { text-align: center; }
@@ -89,13 +104,17 @@
             line-height: 1.8;
             color: var(--noir-profond);
         }
-        .guide-cta { text-align: center; margin-top: 60px; }
+        .guide-cta { text-align: center; margin-top: 55px; }
 
+        /* Ratio image / texte adapté à la taille de l'écran */
+        @media (max-width: 992px) {
+            .guide-item-media { width: 50%; }
+        }
         @media (max-width: 768px) {
-            .guide-item, .guide-item.reversed { flex-direction: column; gap: 20px; text-align: center; }
-            .guide-item-media { width: 100%; }
+            .guide-cards { grid-template-columns: 1fr; }
+            .guide-item, .guide-item.reversed { flex-direction: column; gap: 22px; text-align: center; }
+            .guide-item-media { width: 100%; max-width: 480px; margin: 0 auto; }
             .guide-item-text { text-align: center; }
-            .guide-category-title { font-size: 26px; }
         }
     </style>
 </head>
@@ -131,9 +150,9 @@
 
     <main class="main-content">
         <section class="page-section">
-            <div class="page-header">
-                <h2 class="page-title">Le guide des soins</h2>
-                <p class="page-subtitle">Comprendre chacune de nos prestations en détail</p>
+            <div class="page-header" id="guide-page-header">
+                <h2 class="page-title guide-main-title">Le guide des soins</h2>
+                <p class="page-subtitle">Choisissez un soin pour en savoir plus</p>
             </div>
 
             <div id="guide-container"></div>

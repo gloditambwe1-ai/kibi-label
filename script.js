@@ -547,34 +547,92 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 3bis. PAGE GUIDE DES SOINS
+            //   Navigation à deux vues (comme la page Services) :
+            //   liste des soins  ->  page dédiée d'un soin (photo + intro + sous-services).
+            //   Aucune donnée supplémentaire n'est demandée à Sanity : on réutilise le
+            //   même document serviceGuide, seul l'affichage change.
             if (guidePromise) {
                 const guideCategories = await guidePromise;
                 guideContainer.dataset.contentLoaded = 'true';
 
-                // On ne garde que ce qui a réellement quelque chose à expliquer :
-                // une intro/photo de soin, ou des sous-sections décrites/illustrées.
-                const renderableCategories = (guideCategories || []).map(cat => {
+                const guideHeader = document.getElementById('guide-page-header');
+
+                // On ne garde que ce qui a réellement quelque chose à montrer.
+                const guides = (guideCategories || []).map(cat => {
                     const items = (cat.subSections || []).filter(sub => sub.name && (sub.description || sub.img));
                     return { ...cat, items };
                 }).filter(cat => cat.intro || cat.mainImg || cat.items.length > 0);
 
-                if (renderableCategories.length > 0) {
-                    renderableCategories.forEach(cat => {
-                        const article = document.createElement('article');
-                        article.className = 'guide-category reveal-on-scroll';
+                if (guides.length === 0) {
+                    guideContainer.innerHTML =
+                        '<p class="empty-state">Le guide des soins sera disponible très prochainement.</p>';
+                } else {
+                    // --- VUE 1 : liste des soins ---
+                    const renderGuideList = () => {
+                        if (guideHeader) {
+                            guideHeader.innerHTML = `
+                                <h2 class="page-title guide-main-title">Le guide des soins</h2>
+                                <p class="page-subtitle">Choisissez un soin pour en savoir plus</p>
+                            `;
+                        }
+
+                        if (window.location.hash === '#soin') {
+                            history.replaceState(null, '', window.location.pathname);
+                        }
+
+                        guideContainer.innerHTML = '<div class="guide-cards" id="guide-cards-grid"></div>';
+                        const grid = document.getElementById('guide-cards-grid');
+
+                        guides.forEach(cat => {
+                            const card = document.createElement('div');
+                            card.className = 'service-card dark-card guide-service-card';
+                            card.innerHTML = `
+                                <h3>${escapeHtml(cat.title)}</h3>
+                                <div class="hint">Découvrir ce soin</div>
+                            `;
+                            card.onclick = () => {
+                                history.pushState({ view: 'soin' }, '', window.location.pathname + '#soin');
+                                renderGuideDetail(cat);
+                            };
+                            grid.appendChild(card);
+                        });
+
+                        initLazyScrollReveal();
+                    };
+
+                    // --- VUE 2 : page dédiée d'un soin ---
+                    const renderGuideDetail = (cat) => {
+                        if (guideHeader) {
+                            guideHeader.innerHTML = `
+                                <button type="button" id="btn-back-guide" class="back-btn">
+                                    <i class="fa-solid fa-arrow-left"></i> Retour aux soins
+                                </button>
+                                <h2 class="page-title">${escapeHtml(cat.title)}</h2>
+                                <p class="page-subtitle">Découvrez cette prestation en détail</p>
+                            `;
+
+                            document.getElementById('btn-back-guide').addEventListener('click', (e) => {
+                                e.preventDefault();
+                                if (window.location.hash === '#soin') {
+                                    history.back();
+                                } else {
+                                    renderGuideList();
+                                }
+                            });
+                        }
 
                         const coverHtml = cat.mainImg
-                            ? `<img class="guide-category-cover" src="${escapeHtml(cat.mainImg)}?auto=format&q=80&w=1200" alt="${escapeHtml(cat.title)}" loading="lazy">`
+                            ? `<img class="guide-cover" src="${escapeHtml(cat.mainImg)}?auto=format&q=80&w=1400" alt="${escapeHtml(cat.title)}">`
                             : '';
                         const introHtml = cat.intro
-                            ? `<p class="guide-category-intro">${escapeHtml(cat.intro)}</p>`
+                            ? `<p class="guide-intro">${escapeHtml(cat.intro)}</p>`
                             : '';
 
                         let itemsHtml = '';
                         cat.items.forEach((sub, index) => {
                             const hasImg = Boolean(sub.img);
                             const mediaHtml = hasImg
-                                ? `<div class="guide-item-media"><img src="${escapeHtml(sub.img)}?auto=format&q=80&w=800" alt="${escapeHtml(sub.name)}" loading="lazy"></div>`
+                                ? `<div class="guide-item-media"><img src="${escapeHtml(sub.img)}?auto=format&q=80&w=900" alt="${escapeHtml(sub.name)}" loading="lazy"></div>`
                                 : '';
                             // Alternance gauche/droite pour les blocs illustrés.
                             const reversed = hasImg && index % 2 === 1 ? ' reversed' : '';
@@ -594,26 +652,28 @@ document.addEventListener('DOMContentLoaded', () => {
                             `;
                         });
 
-                        article.innerHTML = `
-                            <div class="guide-category-head">
-                                ${coverHtml}
-                                <h3 class="guide-category-title">${escapeHtml(cat.title)}</h3>
-                                ${introHtml}
-                            </div>
+                        guideContainer.innerHTML = `
+                            ${coverHtml}
+                            ${introHtml}
                             ${itemsHtml ? `<div class="guide-items">${itemsHtml}</div>` : ''}
+                            <div class="guide-cta"><a href="/services" class="cta-button">Voir les tarifs et réserver</a></div>
                         `;
-                        guideContainer.appendChild(article);
+
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        initLazyScrollReveal();
+                    };
+
+                    window.addEventListener('popstate', () => {
+                        if (window.location.hash !== '#soin') {
+                            renderGuideList();
+                        }
                     });
 
-                    const cta = document.createElement('div');
-                    cta.className = 'guide-cta';
-                    cta.innerHTML = `<a href="/services" class="cta-button">Voir les tarifs et réserver</a>`;
-                    guideContainer.appendChild(cta);
+                    if (window.location.hash === '#soin') {
+                        history.replaceState(null, '', window.location.pathname);
+                    }
 
-                    initLazyScrollReveal();
-                } else {
-                    guideContainer.innerHTML =
-                        '<p class="empty-state">Le guide des soins sera disponible très prochainement.</p>';
+                    renderGuideList();
                 }
             }
 
