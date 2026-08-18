@@ -269,12 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ? sanityFetch('*[_type == "serviceCategory"] | order(_createdAt asc) {title, calendlyLink, colorStyle, customBgColor, customTextColor, subServices[]{name, price, subSubServices[]{name, price}}}')
             : null;
         const guidePromise = wantsGuide
-            ? sanityFetch('*[_type == "serviceGuide"] | order(coalesce(order, 9999) asc, _createdAt asc) {title, intro, "mainImg": mainImage.asset->url, subSections[]{name, description, "img": image.asset->url}}')
-            : null;
-        // Couleurs des cartes : on réutilise la même logique que la page Services
-        // (colorStyle défini sur serviceCategory), sans champ supplémentaire côté guide.
-        const guideColorsPromise = wantsGuide
-            ? sanityFetch('*[_type == "serviceCategory"]{title, colorStyle, customBgColor, customTextColor}')
+            ? sanityFetch('*[_type == "serviceGuide"] | order(coalesce(order, 9999) asc, _createdAt asc) {title, intro, colorStyle, customBgColor, customTextColor, "mainImg": mainImage.asset->url, subSections[]{name, description, "img": image.asset->url}}')
             : null;
         const portfolioPromise = wantsPortfolio
             ? sanityFetch('*[_type == "portfolioCategory"] | order(_createdAt asc) {title, "images": images[].asset->url}')
@@ -284,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
             : null;
 
         // Évite un « unhandled rejection » si une requête échoue avant son await.
-        [homePromise, servicesPromise, guidePromise, guideColorsPromise, portfolioPromise, aboutPromise]
+        [homePromise, servicesPromise, guidePromise, portfolioPromise, aboutPromise]
             .forEach(p => p && p.catch(() => {}));
 
         try {
@@ -562,13 +557,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const guideHeader = document.getElementById('guide-page-header');
 
-                // Carte des couleurs par titre de service (même logique que la page Services).
-                const colorRows = guideColorsPromise ? (await guideColorsPromise) || [] : [];
-                const colorMap = {};
-                colorRows.forEach(c => {
-                    if (c && c.title) colorMap[c.title.trim().toLowerCase()] = c;
-                });
-
                 // On ne garde que ce qui a réellement quelque chose à montrer.
                 const guides = (guideCategories || []).map(cat => {
                     const items = (cat.subSections || []).filter(sub => sub.name && (sub.description || sub.img));
@@ -599,13 +587,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             const card = document.createElement('div');
 
                             // Même logique de couleur que les cartes de la page Services.
-                            const color = colorMap[(cat.title || '').trim().toLowerCase()];
                             let themeClass = 'service-card guide-service-card';
                             let inlineStyle = '';
-                            if (color && color.colorStyle === 'peche') {
+                            if (cat.colorStyle === 'peche') {
                                 themeClass += ' light-card';
-                            } else if (color && color.colorStyle === 'custom') {
-                                inlineStyle = `background-color: ${safeColor(color.customBgColor, 'var(--creme)')}; color: ${safeColor(color.customTextColor, 'var(--noir-profond)')}; border: 2px solid rgba(189,106,89,0.2);`;
+                            } else if (cat.colorStyle === 'custom') {
+                                inlineStyle = `background-color: ${safeColor(cat.customBgColor, 'var(--creme)')}; color: ${safeColor(cat.customTextColor, 'var(--noir-profond)')}; border: 2px solid rgba(189,106,89,0.2);`;
                             } else {
                                 themeClass += ' dark-card';
                             }
