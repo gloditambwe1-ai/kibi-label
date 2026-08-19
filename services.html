@@ -37,31 +37,32 @@
         .policy-intro { font-size: 13px; line-height: 1.6; margin: 0 auto 6px; max-width: 420px; }
         .policy-intro .greeting { display: block; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; }
         .policy-intro .stress { display: block; font-weight: 700; margin-top: 10px; }
-        .policy-rows { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
-        .policy-row { display: flex; gap: 10px; align-items: center; text-align: left; }
+        .policy-rows { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; max-width: 480px; margin-left: auto; margin-right: auto; }
+        /* Format « carte » à toutes les tailles : étiquette en bandeau,
+           description centrée juste en dessous. */
+        .policy-row { display: flex; flex-direction: column; gap: 0; text-align: center; }
         .policy-tag {
-            flex: 0 0 120px;
+            width: 100%;
             background: linear-gradient(135deg, var(--terracotta-fonce), var(--terracotta));
             color: #fff;
-            border-radius: 12px;
+            border-radius: 12px 12px 0 0;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            padding: 14px 8px;
-            text-align: center;
+            gap: 10px;
+            padding: 11px 12px;
         }
-        .policy-tag i { font-size: 20px; }
-        .policy-tag span { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+        .policy-tag i { font-size: 18px; }
+        .policy-tag span { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; }
         /* Bloc texte : surtout PAS de flex ici, sinon les mots en gras
            deviennent des colonnes séparées. Flux de texte normal. */
         .policy-desc {
-            flex: 1;
+            width: 100%;
             background: var(--peche-clair);
-            border-radius: 12px;
-            padding: 12px 14px;
-            font-size: 12.5px;
+            border-radius: 0 0 12px 12px;
+            padding: 13px 15px;
+            font-size: 13px;
             line-height: 1.55;
         }
         .policy-desc strong { color: var(--terracotta-fonce); }
@@ -69,22 +70,6 @@
         .policy-foot { text-align: center; margin-top: 16px; }
         .policy-foot .thanks { font-family: var(--font-titre); font-style: italic; color: var(--terracotta); font-size: 16px; display: block; }
         .policy-foot .brand { font-family: var(--font-titre); letter-spacing: 3px; font-size: 12px; }
-
-        /* Sur petit écran : on empile l'étiquette au-dessus du texte, tout centré. */
-        @media (max-width: 480px) {
-            .policy-row { flex-direction: column; gap: 0; text-align: center; }
-            .policy-tag {
-                flex: none;
-                width: 100%;
-                flex-direction: row;
-                justify-content: center;
-                gap: 10px;
-                padding: 10px 12px;
-                border-radius: 12px 12px 0 0;
-            }
-            .policy-tag i { font-size: 17px; }
-            .policy-desc { width: 100%; border-radius: 0 0 12px 12px; }
-        }
     </style>
 </head>
 <body>
