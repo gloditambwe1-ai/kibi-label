@@ -29,6 +29,51 @@
     <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
     <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
     <script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark-mode")}catch(e){}</script>
+
+    <style>
+        /* --- Politique de rendez-vous (rendue en HTML plutôt qu'en image) --- */
+        .policy-doc { text-align: left; font-family: var(--font-texte); color: var(--noir-profond); }
+        .policy-intro { text-align: center; font-size: 13px; line-height: 1.6; margin-bottom: 6px; }
+        .policy-intro .greeting { display: block; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; }
+        .policy-intro .stress { display: block; font-weight: 700; margin-top: 10px; }
+        .policy-rows { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+        .policy-row { display: flex; gap: 10px; align-items: stretch; }
+        .policy-tag {
+            flex: 0 0 118px;
+            background: linear-gradient(135deg, var(--terracotta-fonce), var(--terracotta));
+            color: #fff;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px 6px;
+            text-align: center;
+        }
+        .policy-tag i { font-size: 19px; }
+        .policy-tag span { font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px; }
+        .policy-desc {
+            flex: 1;
+            background: var(--peche-clair);
+            border-radius: 12px;
+            padding: 10px 13px;
+            font-size: 12px;
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+        }
+        .policy-desc strong { color: var(--terracotta-fonce); }
+        body.dark-mode .policy-desc strong { color: #f0b8ab; }
+        .policy-foot { text-align: center; margin-top: 16px; }
+        .policy-foot .thanks { font-family: var(--font-titre); font-style: italic; color: var(--terracotta); font-size: 16px; display: block; }
+        .policy-foot .brand { font-family: var(--font-titre); letter-spacing: 3px; font-size: 12px; }
+        @media (max-width: 420px) {
+            .policy-tag { flex-basis: 92px; }
+            .policy-tag span { font-size: 9.5px; }
+            .policy-desc { font-size: 11.5px; }
+        }
+    </style>
 </head>
 <body>
 
@@ -39,8 +84,46 @@
         <div class="form-container" style="max-width: 500px; width: 100%; text-align: center; position: relative; display: flex; flex-direction: column; gap: 20px; background: var(--bg-carte);">
             <div id="policy-modal-close" style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--terracotta);"><i class="fa-solid fa-xmark"></i></div>
             <h3 style="font-family: var(--font-titre); font-size: 24px; color: var(--terracotta); margin-top: 10px;">Politique de rendez-vous</h3>
-            <div style="max-height: 50vh; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border-input); background: var(--bg-input);">
-                <img id="policy-modal-img" alt="Politique de rendez-vous" style="width: 100%; height: auto; object-fit: contain; display: block; border-radius: 8px;">
+            <div style="max-height: 55vh; overflow-y: auto; padding: 4px 6px;">
+                <div class="policy-doc">
+                    <p class="policy-intro">
+                        <span class="greeting">Chère cliente,</span>
+                        Chaque rendez-vous est un moment entièrement réservé pour vous. Mon objectif est de vous offrir un service de qualité et personnalisé, dans une ambiance agréable et soignée.
+                        <span class="stress">Il est important de respecter les horaires afin de préserver mon organisation et mon temps de travail.</span>
+                    </p>
+
+                    <div class="policy-rows">
+                        <div class="policy-row">
+                            <div class="policy-tag"><i class="fa-regular fa-clock" aria-hidden="true"></i><span>RETARDS</span></div>
+                            <div class="policy-desc">Merci d'arriver à l'heure. Un retard de <strong>plus de 15 minutes</strong> peut entraîner une modification ou l'annulation du rendez-vous.</div>
+                        </div>
+                        <div class="policy-row">
+                            <div class="policy-tag"><i class="fa-solid fa-calendar-xmark" aria-hidden="true"></i><span>ANNULATION</span></div>
+                            <div class="policy-desc">Toute annulation doit être faite au minimum <strong>24h à l'avance</strong>. Passé ce délai, le dépôt est perdu.</div>
+                        </div>
+                        <div class="policy-row">
+                            <div class="policy-tag"><i class="fa-regular fa-credit-card" aria-hidden="true"></i><span>DÉPÔT</span></div>
+                            <div class="policy-desc">Un dépôt de <strong>20$ par service</strong> est requis pour confirmer votre rendez-vous. Non remboursable, mais transférable si les délais sont respectés.</div>
+                        </div>
+                        <div class="policy-row">
+                            <div class="policy-tag"><i class="fa-solid fa-user" aria-hidden="true"></i><span>ACCOMPAGNATEUR</span></div>
+                            <div class="policy-desc"><strong>Aucun accompagnateur n'est autorisé, sauf autorisation préalable.</strong></div>
+                        </div>
+                        <div class="policy-row">
+                            <div class="policy-tag"><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i><span>PAIEMENT</span></div>
+                            <div class="policy-desc">Paiement en argent comptant. Merci d'apporter le montant exact, <strong>aucune monnaie ne sera rendue.</strong></div>
+                        </div>
+                        <div class="policy-row">
+                            <div class="policy-tag"><i class="fa-solid fa-eye" aria-hidden="true"></i><span>PRÉPARATION</span></div>
+                            <div class="policy-desc">Merci de vous présenter prête à recevoir le service réservé : yeux et sourcils sans maquillage, ainsi qu'avec les ongles propres au besoin. ✨</div>
+                        </div>
+                    </div>
+
+                    <div class="policy-foot">
+                        <span class="thanks">Merci pour votre confiance ♡</span>
+                        <span class="brand">KIBI LABEL</span>
+                    </div>
+                </div>
             </div>
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-family: var(--font-texte); font-size: 14px;">
                 <input type="checkbox" id="policy-checkbox" style="cursor: pointer; transform: scale(1.2);">
