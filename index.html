@@ -28,7 +28,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style-v2.css">
-    <script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark-mode")}catch(e){}</script>
 </head>
 <body>
     <div class="page-transition-overlay" id="page-transition"></div>
@@ -38,9 +37,6 @@
         <div class="navbar-left">
             <button type="button" class="menu-toggle" id="menu-open" aria-label="Ouvrir le menu" aria-controls="sidebar" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
             <div class="logo-container"><h1 class="logo">Kibi <span>LABEL</span></h1></div>
-        </div>
-        <div class="navbar-right">
-            <button type="button" class="theme-toggle" id="theme-toggle" title="Mode sombre" aria-label="Basculer le mode sombre" aria-pressed="false"><i class="fa-regular fa-moon" aria-hidden="true"></i></button>
         </div>
     </header>
 
@@ -93,6 +89,59 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="scroll-cue">Découvrir</div>
+        </section>
+
+        <section class="home-section">
+            <div class="home-inner">
+                <div class="section-head reveal-on-scroll">
+                    <p class="eyebrow">Nos prestations</p>
+                    <h2 class="section-title">Des soins pensés pour vous</h2>
+                    <p class="section-lead">Cils, sourcils, ongles : chaque prestation est personnalisée selon vos envies et la morphologie de votre visage, dans un espace calme et soigné à Chicoutimi.</p>
+                </div>
+
+                <div class="home-services-grid" id="home-services"></div>
+
+                <div class="section-cta">
+                    <a href="/services" class="cta-button">Voir tous les tarifs</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="home-section home-section--alt">
+            <div class="home-inner">
+                <div class="section-head reveal-on-scroll">
+                    <p class="eyebrow">L'engagement Kibi Label</p>
+                    <h2 class="section-title">Le souci du détail</h2>
+                </div>
+
+                <div class="values-grid">
+                    <div class="value-item reveal-on-scroll">
+                        <i class="fa-solid fa-gem" aria-hidden="true"></i>
+                        <h3>Sur mesure</h3>
+                        <p>Chaque pose est adaptée à votre regard, vos traits et le résultat que vous souhaitez.</p>
+                    </div>
+                    <div class="value-item reveal-on-scroll">
+                        <i class="fa-solid fa-shield-heart" aria-hidden="true"></i>
+                        <h3>Hygiène irréprochable</h3>
+                        <p>Matériel stérilisé et produits professionnels sélectionnés pour respecter votre peau.</p>
+                    </div>
+                    <div class="value-item reveal-on-scroll">
+                        <i class="fa-solid fa-couch" aria-hidden="true"></i>
+                        <h3>Un vrai moment</h3>
+                        <p>Un rendez-vous entièrement réservé pour vous, dans une ambiance douce et sans précipitation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="home-section home-band">
+            <div class="home-inner">
+                <h2 class="section-title">Prête à prendre rendez-vous ?</h2>
+                <p>Réservez votre prestation en ligne en quelques secondes, au moment qui vous convient.</p>
+                <a href="/services" class="cta-button">Réserver ma prestation</a>
             </div>
         </section>
 

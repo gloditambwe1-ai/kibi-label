@@ -59,35 +59,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- MODE SOMBRE ---
-    const themeToggle = document.getElementById('theme-toggle');
-    const body = document.body;
-    const themeIcon = themeToggle ? themeToggle.querySelector('i') : null;
-
-    // Le <html> porte déjà la classe si le script d'amorçage du <head> l'a posée
-    // (anti-flash) ; on aligne simplement le <body>, ciblé par le CSS.
-    const isDarkStored = document.documentElement.classList.contains('dark-mode')
-        || localStorage.getItem('theme') === 'dark';
-
-    const applyTheme = (isDark) => {
-        body.classList.toggle('dark-mode', isDark);
-        document.documentElement.classList.toggle('dark-mode', isDark);
-        if (themeIcon) {
-            themeIcon.classList.toggle('fa-sun', isDark);
-            themeIcon.classList.toggle('fa-moon', !isDark);
-        }
-        if (themeToggle) themeToggle.setAttribute('aria-pressed', String(isDark));
-    };
-
-    applyTheme(isDarkStored);
-
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            const isDark = !body.classList.contains('dark-mode');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            applyTheme(isDark);
-        });
-    }
+    // Le mode sombre a été retiré du site : on nettoie les traces d'une
+    // éventuelle préférence enregistrée lors d'une visite précédente.
+    try {
+        localStorage.removeItem('theme');
+        document.documentElement.classList.remove('dark-mode');
+        document.body.classList.remove('dark-mode');
+    } catch (e) { /* stockage indisponible : sans conséquence */ }
 
     // ==========================================================
     // --- LAZY LOADING GLOBAL (Intersection Observer) ---
@@ -265,6 +243,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const homePromise = heroSection
             ? sanityFetch('*[_type == "homePage"][0]{heroTitle, ctaText, "heroImg": heroImage.asset->url, "avantImg": avantImage.asset->url, "apresImg": apresImage.asset->url}')
             : null;
+        // Aperçu des prestations sur la page d'accueil (mêmes catégories que /services)
+        const homeServicesEl = document.getElementById('home-services');
+        const homeServicesPromise = homeServicesEl
+            ? sanityFetch('*[_type == "serviceCategory"] | order(_createdAt asc){title}')
+            : null;
         const servicesPromise = wantsServices
             ? sanityFetch('*[_type == "serviceCategory"] | order(_createdAt asc) {title, calendlyLink, colorStyle, customBgColor, customTextColor, subServices[]{name, price, subSubServices[]{name, price}}}')
             : null;
@@ -279,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
             : null;
 
         // Évite un « unhandled rejection » si une requête échoue avant son await.
-        [homePromise, servicesPromise, guidePromise, portfolioPromise, aboutPromise]
+        [homePromise, homeServicesPromise, servicesPromise, guidePromise, portfolioPromise, aboutPromise]
             .forEach(p => p && p.catch(() => {}));
 
         try {
@@ -365,6 +348,25 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (img) img.src = `${h.apresImg}?auto=format&q=80&w=1200`;
                     }
                 }
+            }
+
+            // 2bis. APERÇU DES PRESTATIONS (ACCUEIL)
+            if (homeServicesPromise) {
+                const cats = (await homeServicesPromise) || [];
+                const named = cats.filter(c => c && c.title);
+
+                if (named.length > 0) {
+                    homeServicesEl.innerHTML = named.map(c => `
+                        <a href="/services" class="home-service-card reveal-on-scroll">
+                            <h3>${escapeHtml(c.title)}</h3>
+                            <span>Voir les tarifs</span>
+                        </a>
+                    `).join('');
+                } else {
+                    // Rien de publié : on retire la grille plutôt que d'afficher un vide.
+                    homeServicesEl.remove();
+                }
+                initLazyScrollReveal();
             }
 
             // 3. PAGE SERVICES
