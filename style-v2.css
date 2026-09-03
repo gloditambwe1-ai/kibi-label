@@ -177,7 +177,23 @@ body.home .main-content { height: 100svh; }
     height: 100%; color: #fff; text-align: left;
     padding: 120px clamp(24px, 6vw, 72px) clamp(36px, 6vh, 68px);
 }
-.hero-content { display: flex; flex-direction: column; align-items: flex-start; text-align: left; max-width: 720px; animation: riseIn 1s cubic-bezier(.25,1,.5,1) both; animation-delay: .15s; }
+/* Deux colonnes sur grand écran : marque + accroche + bouton à gauche,
+   prestations + engagement à droite. Tout se regroupe sur petit écran. */
+.hero-content {
+    display: grid; width: 100%; max-width: 1500px; text-align: left;
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 400px);
+    grid-template-areas:
+        "main  aside"
+        "cta   aside";
+    align-items: end;
+    column-gap: clamp(32px, 6vw, 96px);
+    row-gap: 28px;
+    animation: riseIn 1s cubic-bezier(.25,1,.5,1) both; animation-delay: .15s;
+}
+.hero-main { grid-area: main; }
+.hero-aside { grid-area: aside; text-align: right; }
+.hero-content > .cta-button { grid-area: cta; justify-self: start; }
+
 .hero-logo-icon { margin-bottom: 0; display: block; }
 .hero-logo-icon h2, .hero-subtitle-brand {
     font-family: var(--font-titre); font-weight: 400; color: #fff;
@@ -187,9 +203,14 @@ body.home .main-content { height: 100svh; }
 
 /* Sommaire des prestations (repris des catégories publiées dans Sanity) */
 .hero-services {
-    font-size: clamp(10px, 1.25vw, 13px); font-weight: 400;
+    position: relative; font-size: clamp(10px, 1.15vw, 12.5px); font-weight: 400;
     letter-spacing: .2em; text-transform: uppercase;
-    color: rgba(255,255,255,.95); margin: 16px 0 0; line-height: 1.9;
+    color: rgba(255,255,255,.95); margin: 0 0 18px; line-height: 2;
+    padding-bottom: 18px;
+}
+.hero-services::after {
+    content: ''; position: absolute; bottom: 0; right: 0;
+    width: 72px; height: 1px; background: rgba(255,255,255,.45);
 }
 .hero-services:empty { display: none; }
 
@@ -205,12 +226,13 @@ body.home .main-content { height: 100svh; }
 
 /* Engagement Kibi Label */
 .hero-pledge {
-    font-size: clamp(12.5px, 1.35vw, 14.5px); font-weight: 300; line-height: 1.75;
-    color: rgba(255,255,255,.8); margin: 14px 0 0; max-width: 54ch;
+    font-size: clamp(12.5px, 1.3vw, 14px); font-weight: 300; line-height: 1.8;
+    color: rgba(255,255,255,.82); margin: 0; max-width: 46ch;
 }
+.hero-aside .hero-pledge { margin-left: auto; }
 
 .hero-text-side .cta-button {
-    margin-top: 26px; background: transparent; border: 1px solid rgba(255,255,255,.7);
+    margin-top: 0; background: transparent; border: 1px solid rgba(255,255,255,.7);
     color: #fff;
 }
 .hero-text-side .cta-button:hover { background: var(--creme); color: var(--noir-profond); border-color: var(--creme); }
@@ -419,6 +441,17 @@ body.home .main-content { height: 100svh; }
    RESPONSIVE
    ========================================================================== */
 @media (max-width: 1024px) {
+    /* Une seule colonne : marque, accroche, prestations, engagement, bouton. */
+    .hero-content {
+        grid-template-columns: 1fr;
+        grid-template-areas: "main" "aside" "cta";
+        row-gap: 20px;
+    }
+    .hero-aside { text-align: left; }
+    .hero-aside .hero-pledge { margin-left: 0; }
+    .hero-services { margin-bottom: 14px; padding-bottom: 14px; }
+    .hero-services::after { right: auto; left: 0; }
+
     .bottom-footer { flex-wrap: wrap; gap: 18px; justify-content: center; }
     .services-grid { grid-template-columns: 1fr; }
     .about-container { flex-direction: column; }
