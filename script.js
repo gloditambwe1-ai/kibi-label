@@ -350,23 +350,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // 2bis. APERÇU DES PRESTATIONS (ACCUEIL)
+            // 2bis. SOMMAIRE DES PRESTATIONS (ACCUEIL)
+            //   Une simple ligne « Cils · Ongles · Sourcils », reprise des
+            //   catégories publiées pour la page Services. Pas de lien : la page
+            //   d'accueil ne comporte qu'un seul bouton cliquable.
             if (homeServicesPromise) {
                 const cats = (await homeServicesPromise) || [];
-                const named = cats.filter(c => c && c.title);
+                const titles = cats.filter(c => c && c.title).map(c => c.title);
 
-                if (named.length > 0) {
-                    homeServicesEl.innerHTML = named.map(c => `
-                        <a href="/services" class="home-service-card reveal-on-scroll">
-                            <h3>${escapeHtml(c.title)}</h3>
-                            <span>Voir les tarifs</span>
-                        </a>
-                    `).join('');
+                if (titles.length > 0) {
+                    homeServicesEl.textContent = titles.join(' · ');
                 } else {
-                    // Rien de publié : on retire la grille plutôt que d'afficher un vide.
                     homeServicesEl.remove();
                 }
-                initLazyScrollReveal();
             }
 
             // 3. PAGE SERVICES

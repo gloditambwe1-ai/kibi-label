@@ -137,9 +137,13 @@ body {
 /* ==========================================================================
    HERO — PHOTO PLEIN ÉCRAN + DÉGRADÉ EN BAS
    ========================================================================== */
+/* La page d'accueil tient exactement dans un écran : pas de défilement.
+   Le hero occupe tout l'espace restant au-dessus du pied de page. */
+body.home .main-content { height: 100svh; }
+
 .hero-section {
-    position: relative; display: block; flex: none;
-    min-height: 100svh; margin-top: -84px; overflow: hidden;
+    position: relative; display: block;
+    flex: 1; min-height: 0; margin-top: -84px; overflow: hidden;
     background-color: var(--noir-profond);
 }
 .hero-image-side { position: absolute; inset: 0; width: 100%; padding: 0; display: block; z-index: 1; }
@@ -170,41 +174,46 @@ body {
     background: none; background-image: none;
     margin-left: 0; border-radius: 0; box-shadow: none;
     display: flex; align-items: flex-end; justify-content: flex-start;
-    min-height: 100svh; color: #fff; text-align: left;
-    padding: 150px clamp(24px, 6vw, 72px) clamp(44px, 8vh, 86px);
+    height: 100%; color: #fff; text-align: left;
+    padding: 120px clamp(24px, 6vw, 72px) clamp(36px, 6vh, 68px);
 }
-.hero-content { display: flex; flex-direction: column; align-items: flex-start; text-align: left; max-width: 780px; animation: riseIn 1s cubic-bezier(.25,1,.5,1) both; animation-delay: .15s; }
+.hero-content { display: flex; flex-direction: column; align-items: flex-start; text-align: left; max-width: 720px; animation: riseIn 1s cubic-bezier(.25,1,.5,1) both; animation-delay: .15s; }
 .hero-logo-icon { margin-bottom: 0; display: block; }
 .hero-logo-icon h2, .hero-subtitle-brand {
     font-family: var(--font-titre); font-weight: 400; color: #fff;
-    font-size: clamp(44px, 9vw, 118px); line-height: .92;
+    font-size: clamp(38px, 7vw, 92px); line-height: .94;
     letter-spacing: .02em; text-transform: uppercase; margin: 0;
 }
+
+/* Sommaire des prestations (repris des catégories publiées dans Sanity) */
+.hero-services {
+    font-size: clamp(10px, 1.25vw, 13px); font-weight: 400;
+    letter-spacing: .2em; text-transform: uppercase;
+    color: rgba(255,255,255,.95); margin: 16px 0 0; line-height: 1.9;
+}
+.hero-services:empty { display: none; }
+
 .hero-title {
     position: relative; font-family: var(--font-titre); font-weight: 400;
-    font-size: clamp(16px, 2.2vw, 23px); line-height: 1.5;
-    color: rgba(255,255,255,.92); margin: 0; padding-top: 30px;
+    font-size: clamp(15px, 1.9vw, 21px); line-height: 1.45;
+    color: rgba(255,255,255,.94); margin: 0; padding-top: 26px;
 }
 .hero-title::before {
-    content: ''; position: absolute; top: 8px; left: 0;
-    width: 96px; height: 1px; background: rgba(255,255,255,.55);
+    content: ''; position: absolute; top: 10px; left: 0;
+    width: 88px; height: 1px; background: rgba(255,255,255,.55);
 }
+
+/* Engagement Kibi Label */
+.hero-pledge {
+    font-size: clamp(12.5px, 1.35vw, 14.5px); font-weight: 300; line-height: 1.75;
+    color: rgba(255,255,255,.8); margin: 14px 0 0; max-width: 54ch;
+}
+
 .hero-text-side .cta-button {
-    margin-top: 28px; background: transparent; border: 1px solid rgba(255,255,255,.7);
+    margin-top: 26px; background: transparent; border: 1px solid rgba(255,255,255,.7);
     color: #fff;
 }
 .hero-text-side .cta-button:hover { background: var(--creme); color: var(--noir-profond); border-color: var(--creme); }
-
-/* Indicateur de défilement */
-.scroll-cue {
-    position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%);
-    z-index: 4; color: rgba(255,255,255,.75); font-size: 10px;
-    letter-spacing: .24em; text-transform: uppercase; text-align: center;
-}
-.scroll-cue::after {
-    content: ''; display: block; width: 1px; height: 34px; margin: 10px auto 0;
-    background: linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,0));
-}
 
 /* --- BOUTONS --- */
 .cta-button, .service-btn {
@@ -257,42 +266,6 @@ body {
 .slider-visual-line { position: absolute; top: 0; left: 50%; width: 1px; height: 100%; background-color: rgba(255,255,255,.9); transform: translateX(-50%); pointer-events: none; z-index: 5; }
 .slider-visual-button { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); display: flex; gap: 6px; color: #fff; font-size: 13px; text-shadow: 0 2px 6px rgba(0,0,0,.7); transition: transform .3s ease; pointer-events: none; z-index: 6; }
 .ba-slider-container:hover .slider-visual-button { transform: translate(-50%,-50%) scale(1.15); }
-
-/* ==========================================================================
-   SECTIONS DE LA PAGE D'ACCUEIL
-   ========================================================================== */
-.home-section { padding: clamp(56px, 7vw, 104px) clamp(20px, 5vw, 64px); }
-.home-inner { max-width: 1240px; margin: 0 auto; }
-.home-section--alt { background-color: var(--peche-clair); }
-
-.section-head { text-align: center; margin-bottom: clamp(32px, 4vw, 56px); }
-.eyebrow { font-size: 10.5px; font-weight: 500; letter-spacing: .26em; text-transform: uppercase; color: var(--terracotta); margin-bottom: 14px; }
-.section-title { font-family: var(--font-titre); font-weight: 400; font-size: clamp(26px, 4vw, 44px); line-height: 1.2; color: var(--noir-profond); }
-.section-lead { font-size: 15px; line-height: 1.9; color: var(--noir-profond); opacity: .85; max-width: 60ch; margin: 16px auto 0; }
-.section-cta { text-align: center; margin-top: clamp(32px, 4vw, 52px); }
-
-.home-services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 20px; }
-.home-service-card {
-    display: block; text-decoration: none; text-align: center;
-    background: var(--bg-carte); color: var(--noir-profond);
-    border: 1px solid var(--border-input); border-radius: var(--r-md);
-    padding: 36px 24px;
-    transition: transform .4s ease, box-shadow .4s ease, border-color .4s ease;
-}
-.home-service-card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px var(--ombre-douce); border-color: var(--terracotta); }
-.home-service-card h3 { font-family: var(--font-titre); font-weight: 400; font-size: 22px; margin-bottom: 12px; }
-.home-service-card span { font-size: 9.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--terracotta); font-weight: 500; }
-
-.values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: clamp(28px, 3vw, 48px); text-align: center; }
-.value-item i { font-size: 22px; color: var(--terracotta); margin-bottom: 18px; display: block; }
-.value-item h3 { font-family: var(--font-titre); font-weight: 400; font-size: 20px; margin-bottom: 12px; color: var(--noir-profond); }
-.value-item p { font-size: 14px; line-height: 1.85; color: var(--noir-profond); opacity: .85; max-width: 34ch; margin: 0 auto; }
-
-.home-band { background-color: var(--brun-nuit); text-align: center; }
-.home-band .section-title { color: #fff; }
-.home-band p { color: rgba(255,255,255,.78); font-size: 15px; line-height: 1.85; max-width: 52ch; margin: 16px auto 32px; }
-.home-band .cta-button { background: #fff; color: var(--noir-profond); border-color: #fff; }
-.home-band .cta-button:hover { background: transparent; color: #fff; border-color: rgba(255,255,255,.7); }
 
 /* ==========================================================================
    SECTIONS INTÉRIEURES
@@ -438,8 +411,8 @@ body {
         width: calc(100% - var(--sidebar-w));
         padding-top: 0;
     }
-    .hero-section { margin-top: 0; min-height: 100vh; }
-    .hero-text-side { min-height: 100vh; padding-top: 120px; }
+    .hero-section { margin-top: 0; }
+    .hero-text-side { padding-top: 90px; }
 }
 
 /* ==========================================================================
@@ -454,11 +427,18 @@ body {
 }
 
 @media (max-width: 768px) {
-    .hero-text-side { padding: 128px clamp(22px, 6vw, 40px) clamp(40px, 7vh, 64px); }
+    .hero-text-side { padding: 110px clamp(22px, 6vw, 40px) clamp(30px, 5vh, 52px); }
     .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .sidebar-offcanvas { width: 290px; padding: 36px 26px; }
-    .before-after-widget { width: 100%; max-width: 260px; }
-    .scroll-cue { display: none; }
+    .bottom-footer { padding: 20px 16px; gap: 12px; }
+    .contact-item { font-size: 10px; }
+}
+
+/* Écran très bas (mobile en paysage, petits portables) : on autorise
+   le défilement plutôt que de tronquer le contenu. */
+@media (max-height: 620px) {
+    body.home .main-content { height: auto; min-height: 100svh; }
+    .hero-section { min-height: 480px; }
 }
 
 @media (max-width: 480px) {
